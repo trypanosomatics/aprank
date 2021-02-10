@@ -8,7 +8,6 @@ setwd(aprank_folder)
 
 library(data.table)
 library(ROSE)
-library(pROC)
 
 source("source/lib/normalization.R")
 
