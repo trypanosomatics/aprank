@@ -1,0 +1,5 @@
+#GO TO 01_inputs\blast AND RUN THIS TO CREATE THE DB
+formatdb -i all_organisms.fasta -p T
+
+#DONT RUN THIS, THIS WILL BE RUN IN THE NEXT CODE
+blastp -db all_organisms.fasta -query ORGANISM.fasta -outfmt '6 qseqid sseqid pident length mismatch gapopen evalue bitscore qseq sseq sstart send' -word_size 2 -max_target_seqs 10000 -matrix BLOSUM80 > OUT
