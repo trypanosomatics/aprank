@@ -12,3 +12,11 @@ You will have to edit the first lines of all the scripts so they match to the lo
 aprank_development_folder <- "/home/user/Desktop/APRANK/ModelDevelopment"
 aprank_folder <- "/home/user/Desktop/APRANK"
 ```
+
+You also might have to install some R packages. The ones needed are:
+
+- data.table
+- foreach
+- parallel
+- doParallel
+- ROSE
