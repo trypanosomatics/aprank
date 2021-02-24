@@ -17,7 +17,7 @@ Needs Perl (Config::General, Bio::SeqIO::fasta, Parallel::ForkManager), R (data.
 
 ## GETTING THE MODELS
 
-Due to their size, the models aren't present in github. You will need to download them from [here](https://www.google.com/) and place them inside the ***/models*** folder.
+Due to their size, the models aren't present in this repository. You will need to download them from [here](https://www.google.com/) and place them inside the ***/models*** folder.
 
 ## INSTALLING THE PREDICTORS
 
