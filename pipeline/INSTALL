@@ -1,0 +1,286 @@
+##################
+#Done in a clean install of Ubuntu 16.04.7 desktop amd64
+##################
+
+##################
+#Install BioPerl
+##################
+#Install BioPerl (http://bioperl.org/INSTALL.html)
+sudo perl -MCPAN -e shell
+#Inside CPAN write
+install Module::Build
+#Leave
+exit
+
+#Install cpanm
+sudo apt install cpanminus
+
+#Install BioPerl
+sudo cpanm Bio::Perl
+
+##################
+#Install R
+##################
+#Add the key
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+
+#Add the repo
+sudo add-apt-repository 'deb [arch=amd64,i386] https://cran.rstudio.com/bin/linux/ubuntu xenial/'
+
+#Update repos
+sudo apt-get update
+
+#Install R
+sudo apt-get install r-base
+
+#Install RStudio (not really necessary, but makes things easier to use)
+#Go to https://rstudio.com/products/rstudio/download/#download
+#Download the corresponding file, such as rstudio-1.3.1093-amd64.deb
+sudo apt-get install gdebi-core
+sudo gdebi rstudio-1.3.1093-amd64.deb
+
+#Enter R
+sudo -i R
+
+#Install packages
+install.packages('data.table')
+install.packages('foreach')
+install.packages('parallel')
+install.packages('doParallel')
+
+##################
+#Configure Perl
+##################
+sudo apt-get install -y libconfig-general-perl
+
+##################
+#Configure Bepipred
+##################
+#Download bepipred-1.0 (https://services.healthtech.dtu.dk/software.php)
+#Put the files in /usr/local/bepipred-1.0
+
+#Install requirements
+sudo apt-get install gawk
+sudo apt-get install csh
+sudo apt-get install tcsh
+
+#Create a temp folder
+sudo mkdir /var/tmp/bepipred
+#Set the permissions
+sudo chmod 1777 /var/tmp/bepipred
+
+#Create the link
+sudo ln -s /usr/local/bepipred-1.0/bepipred /usr/local/bin/bepipred
+
+#Test the program with one or more of the following
+# one sequence
+bepipred /usr/local/bepipred-1.0/test/CHO.fsa
+# one sequence, higher threshold
+bepipred -t 0.90 /usr/local/bepipred-1.0/test/CHO.fsa
+# many sequences
+bepipred /usr/local/bepipred-1.0/test/Pellequer.fsa
+
+##################
+#Configure Iupred
+##################
+#Download Iupred (http://iupred.enzim.hu/Downloads.php)
+#Put the files in /usr/local/iupred
+
+#Set an environment variable to the path
+sudo nano /etc/environment
+#Add
+IUPred_PATH="/usr/local/iupred"
+
+#Create the link
+sudo ln -s /usr/local/iupred/iupred /usr/local/bin/iupred
+
+#Test the program
+iupred /usr/local/iupred/P53_HUMAN.seq long
+
+##################
+#Configure SignalP
+##################
+#Download SignalP 4.0 (https://services.healthtech.dtu.dk/software.php)
+#Put the files in /usr/local/signalp-4.0
+
+#Create a temp folder
+sudo mkdir /var/tmp/signalp
+#Set the permissions
+sudo chmod 777 /var/tmp/signalp
+
+#Create the link
+sudo ln -s /usr/local/signalp-4.0/signalp /usr/local/bin/signalp
+
+#Test the program with one or more of the following
+cd /usr/local/signalp-4.0
+signalp -t euk -f short test/euk10.fsa > euk10.fsa.short_out
+signalp -t euk -f long test/euk10.fsa > euk10.fsa.long_out
+signalp -t euk -f all test/euk10.fsa > euk10.fsa.all_out
+signalp -t euk -f summary test/euk10.fsa > euk10.fsa.summary_out
+
+##################
+#Configure TMHMM
+##################
+#Download TMHMM 2.0c (https://services.healthtech.dtu.dk/software.php)
+#Put the files in /usr/local/Tmhmm/tmhmm-2.0c
+
+#Create a temp folder
+sudo mkdir /var/tmp/tmhmm
+#Set the permissions
+sudo chmod 777 /var/tmp/tmhmm
+
+#Create the link
+sudo ln -s /usr/local/Tmhmm/tmhmm-2.0c/bin/tmhmm /usr/local/bin/tmhmm
+
+#Test
+tmhmm /usr/local/bepipred-1.0/test/CHO.fsa
+
+##################
+#Configure Xstream
+##################
+#Download Xstream 1.71 (https://amnewmanlab.stanford.edu/xstream/download.jsp)
+#Put the files in /usr/local/xstream
+
+#Install java if necessary
+sudo apt-get install default-jre
+
+#Test
+java -jar /usr/local/xstream/xstream.jar -h /usr/local/bepipred-1.0/test/CHO.fsa
+
+##################
+#Configure NetOglyc
+##################
+#Download NetOglyc 3.1d (https://services.healthtech.dtu.dk/software.php)
+#Put the files in /usr/local/netOglyc-3.1d
+
+#Install requirements
+sudo apt-get install gnuplot
+
+#If running in a x64 system, do
+sudo apt-get install libc6:i386
+sudo apt-get install libncurses5:i386
+sudo apt-get install libstdc++6:i386
+sudo apt-get install libx11-6:i386
+
+#Create a temp folder
+sudo mkdir /var/tmp/netoglyc
+#Set the permissions
+sudo chmod 777 /var/tmp/netoglyc
+
+#Create the link
+sudo ln -s /usr/local/netOglyc-3.1d/netOglyc /usr/local/bin/netOglyc
+
+#Test the program
+netOglyc /usr/local/netOglyc-3.1d/test/GLP_MACFU.fsa
+netOglyc /usr/local/netOglyc-3.1d/test/LEUK_RAT.fsa
+netOglyc /usr/local/netOglyc-3.1d/test/both.fsa
+
+##################
+#Configure Paircoil2
+##################
+#Download Paircoil2 (https://cb.csail.mit.edu/cb/paircoil2/bin.html)
+#Put the files in /usr/local/paircoil2
+
+#Inside the paircoil folder, create the config file .paircoil2
+cd /usr/local/paircoil2
+nano .paircoil2
+#Inside the file write the following
+genbnk = /usr/local/paircoil2/nr90-050325.tb
+cctb = /usr/local/paircoil2/newcc.tb
+lib = 0 1 3
+
+#Set an environment variable to the path
+sudo nano /etc/environment
+#Add the following
+PAIRCOIL_CONFIG="/usr/local/paircoil2/.paircoil2"
+#Relogging the session is needed for the variable to update
+
+#Create the link
+sudo ln -s /usr/local/paircoil2/paircoil2 /usr/local/bin/paircoil2
+
+#Test
+cd /usr/local/paircoil2/
+paircoil2 /usr/local/bepipred-1.0/test/CHO.fsa > out_test
+
+##################
+#Configure NetSurfp
+##################
+#Download NetSurfp 1.0 (https://services.healthtech.dtu.dk/software.php)
+#Put the files in /usr/local/netsurfp-1.0
+
+#Install requirements
+sudo apt-get install blast2
+
+#Create a temp folder
+sudo mkdir /var/tmp/netsurfp
+#Set the permissions
+sudo chmod 777 /var/tmp/netsurfp
+
+#Create the link
+sudo ln -s /usr/local/netsurfp-1.0/netsurfp /usr/local/bin/netsurfp
+
+#Test
+cd /usr/local/netsurfp-1.0/
+netsurfp -i /usr/local/bepipred-1.0/test/CHO.fsa -o out_test -v on
+
+##################
+#Configure NetMHCIIPan
+##################
+#Download NetMHCIIPan 2.0 (https://services.healthtech.dtu.dk/software.php)
+#Put the files in /usr/local/netMHCIIpan-2.0
+
+#Create a temp folder
+sudo mkdir /var/tmp/netmhciipan
+#Set the permissions
+sudo chmod 777 /var/tmp/netmhciipan
+
+#Create the link
+sudo ln -s /usr/local/netMHCIIpan-2.0/netMHCIIpan /usr/local/bin/netMHCIIpan
+
+#Test
+netMHCIIpan /usr/local/bepipred-1.0/test/CHO.fsa
+
+##################
+#Configure PredGPI
+##################
+#Download PredGPI 1.4.3 (http://gpcr2.biocomp.unibo.it/predgpi/)
+#Put the files in /usr/local/predgpi
+
+#Install requirements
+sudo apt-get install python-dev
+sudo apt-get install python-pip
+sudo -H pip --disable-pip-version-check install numpy
+sudo -H pip --disable-pip-version-check install biopython==1.76
+
+#Create the link
+sudo ln -s /usr/local/predgpi/PredGPI.py /usr/local/bin/PredGPI.py
+
+#Test
+PredGPI.py /usr/local/bepipred-1.0/test/CHO.fsa
+
+##################
+#Configure Isoelectric Point
+##################
+#Install requirements
+sudo apt-get install emboss
+
+##################
+#Running APRANK via R
+##################
+#Edit "R_pipeline.R" using RStudio or other text editor. Adjust the config variables as necessary.
+
+#Either run the code in RStudio or run the following command in the APRANK folder
+Rscript --vanilla R_pipeline.R
+
+##################
+#Running APRANK via Perl
+##################
+#Edit the "Perl Pipeline Config.txt" file using a text editor. Adjust the config variables as necessary.
+
+#Run the "pipeline.pl" from console, passing the input file
+perl pipeline.pl test/CHO.fsa
+
+#Remember that if you are using the Perl pipeline you can also change settings directly from console, such as
+perl pipeline.pl test/CHO.fsa -l 16 -o 12
+#You can read the full list of these paremeters in the Readme.txt file or by using
+perl pipeline.pl -h

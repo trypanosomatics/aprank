@@ -1,0 +1,152 @@
+# Default values for the arguments for the main function
+# You can modify them here or passing the new values by argument as explained in Readme.txt
+
+########################
+### Additional Input Files
+########################
+
+# The full path of a file with protein sequences from the host in FASTA format. Only necessary for CrossReactivity.
+host_fasta_file = 
+
+# The full path of a file with protein sequences in FASTA format from an organism that is coendemic to the one studied. Only necessary for Coendemicity.
+coendemic_fasta_file = 
+
+########################
+### General
+########################
+
+# Length of the peptides to analyze.
+peptide_length = 15
+
+# Overlap of said peptides.
+peptide_overlap = 14
+
+# The length of the kmers used when comparing to the host or coendemic genome or when using Self Similarity (integer 
+# between 4 and 30).
+kmer_length = 6
+
+# The full path of the output folder. If it isn't given it's constructed from the name of the input fasta file.
+output_folder = 
+
+# The amount of parallel processes to run (has to be below or equal the amount of processors in your PC).
+number_of_parallel_processes = 1
+
+########################
+### Predictors
+########################
+
+# If use or not BepiPred, which is used to predict B cell epitopes. (1 = Yes, 0 = No)
+use_BepiPred = 1
+
+# If use or not IsoelectricPoint, which is used to predict the Isoelectric Point of a protein. (1 = Yes, 0 = No)
+use_IsoelectricPoint = 1
+
+# If use or not Iupred, which is used to detect intrinsically disordered proteins. (1 = Yes, 0 = No)
+use_Iupred = 1
+
+# If use or not CrossReactivity, which is used to predict the Molecular Weight of a protein. (1 = Yes, 0 = No)
+use_MolecularWeight = 1
+
+# If use or not NetMHCIIpan, which is used to predict binding of peptides to MHC class II molecules. (1 = Yes, 0 = No)
+use_NetMHCIIpan = 1
+
+# If use or not NetOglyc, which is used to detect possible O-glycosylation sites. (1 = Yes, 0 = No)
+use_NetOglyc = 1
+
+# If use or not NetSurfp, which is used to predict relative surface accessibility, and probabilities for both alpha 
+# helix and beta strand. (1 = Yes, 0 = No)
+use_NetSurfp = 1
+
+# If use or not Paircoil2, which is used to predict the parallel coiled coil fold of a protein. (1 = Yes, 0 = No)
+use_Paircoil2 = 1
+
+# If use or not PredGPI, which is used to predict which proteins are GPI-anchored proteins. (1 = Yes, 0 = No)
+use_PredGPI = 1
+
+# If use or not SignalP, which is used to detect the presence and location of signal peptide cleavage sites. (1 = Yes, 0 = No)
+use_SignalP = 1
+
+# If use or not TMHMM, which is used to predict if the protein has transmembrane helices. (1 = Yes, 0 = No)
+use_TMHMM = 1
+
+# If use or not Xstream, which is used to detect tandem repeats in proteins. (1 = Yes, 0 = No)
+use_Xstream = 1
+
+########################
+### Custom Predictors
+########################
+
+# If use or not SelfSimilarity, which is used to detect highly similar sequences inside the same proteome. (1 = Yes, 0 = No)
+use_SelfSimilarity = 1
+
+# If use or not CrossReactivity, which is used to detect highly similar sequences between host and pathogen. (1 = Yes, 0 = No)
+use_CrossReactivity = 1
+
+# If use or not Coendemicity, which is used to penalize highly similar sequences between pathogen and another coendemic pathogen. (1 = Yes, 0 = No)
+use_Coendemicity = 1
+
+########################
+### NetMHCIIpan
+########################
+
+# The length of the fragment used when analyzing with NetMHCIIpan (integer between 9 and 30).
+NetMHCIIpan_binding_peptide_length = 9
+
+# The names of the MHC class II alleles to consider when analyzing (separated by spaces).
+NetMHCIIpan_alleles = DRB1_0101 DRB3_0101 DRB4_0101 DRB5_0101
+
+########################
+### Paircoil2
+########################
+
+# The length of each fragment Paircoil2 will analyze (has to be >= 28).
+Paircoil2_fragment_length = 50
+
+# The minimum probability of being in a coiled coil that the data has to have to be considered to be in coiled coil 
+# (between 0 and 1).
+Paircoil2_threshold = 0.5
+
+########################
+### SignalP
+########################
+
+# The organism group of the genome to analyze. It can be: "euk", "gram+" or "gram-".
+SignalP_organism_group = euk
+
+########################
+### Xstream
+########################
+
+# The minimum period that a tandem repeat has to have to be recorded when using Xstream.
+Xstream_min_period = 1
+
+# The minimum copy number that a tandem repeat has to have to be recorded when using Xstream.
+Xstream_min_copy_number = 1
+
+# The maximum consensus error that a tandem repeat has to have to be recorded when using Xstream.
+Xstream_max_consensus_error = 1
+
+########################
+### Coendemicity
+########################
+
+# The minimum amount of times a given kmer has to appear in the coendemic proteome to apply the penalty to proteins 
+# containing it.
+Coendemicity_protein_min_kmer_amount_for_penalty = 0
+
+# The proportion of coendemic kmers a protein has to have to start applying a penalty to it.
+Coendemicity_protein_start_penalty_proportion = 0
+
+# The proportion of coendemic kmers a protein has to have to apply the maximum penalty to it.
+Coendemicity_protein_max_penalty_proportion = 0.33
+
+# The minimum amount of times a given kmer has to appear in the coendemic proteome to apply the penalty to peptides 
+# containing it.
+Coendemicity_peptide_min_kmer_amount_for_penalty = 0
+
+# The proportion of coendemic kmers a peptide has to have to start applying a penalty to it.
+Coendemicity_peptide_start_penalty_proportion = 0
+
+# The proportion of coendemic kmers a peptide has to have to apply the maximum penalty to it.
+Coendemicity_peptide_max_penalty_proportion = 0.133
+

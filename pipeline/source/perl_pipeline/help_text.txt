@@ -1,0 +1,172 @@
+APRANK v1.0
+
+USAGE
+    pipeline.pl fasta_file [-h|help] [-hf host_fasta_file]
+        [-cf coendemic_fasta_file] [-l peptide_length] [-o peptide_overlap]
+        [-kl kmer_length] [-of output_folder]
+        [-pp number_of_parallel_processes] [-bp use_BepiPred]
+        [-ip use_IsoelectricPoint] [-ir use_Iupred] [-mw use_MolecularWeight]
+        [-mhc use_NetMHCIIpan] [-no use_NetOglyc] [-ns use_NetSurfp]
+        [-p2 use_Paircoil2] [-gpi use_PredGPI] [-sp use_SignalP]
+        [-tm use_TMHMM] [-xs use_Xstream] [-ss use_SelfSimilarity]
+        [-cr use_CrossReactivity] [-ce use_Coendemicity]
+        [-mhcl NetMHCIIpan_binding_peptide_length] [-mhca NetMHCIIpan_alleles]
+        [-p2l Paircoil2_fragment_length] [-p2t Paircoil2_threshold]
+        [-spg SignalP_organism_group] [-xsp Xstream_min_period]
+        [-xscn Xstream_min_copy_number] [-xse Xstream_max_consensus_error]
+        [-cea Coendemicity_protein_min_kmer_amount_for_penalty]
+        [-cesp Coendemicity_protein_start_penalty_proportion]
+        [-cemp Coendemicity_protein_max_penalty_proportion]
+        [-cepepa Coendemicity_peptide_min_kmer_amount_for_penalty]
+        [-cepepsp Coendemicity_peptide_start_penalty_proportion]
+        [-cepepmp Coendemicity_peptide_max_penalty_proportion]
+
+It's recomended to change the arguments from \"Perl Pipeline Config.txt\"
+
+fasta_file
+    A file with protein sequences in FASTA format.
+
+help
+    Information about how to use the program.
+
+host_fasta_file
+    A file with protein sequences from the host in FASTA format.
+
+coendemic_fasta_file
+    A file with protein sequences in FASTA format from an organism that is 
+    coendemic to the one studied.
+
+peptide_length
+    Length of the peptides to analyze.
+
+peptide_overlap
+    Overlap of said peptides.
+
+kmer_length
+    The length of the kmers used when comparing to the host or coendemic 
+    genome or when using Self Similarity (integer between 4 and 30).
+
+output_folder
+    The output folder. If it isn't given it's constructed from the name of 
+    the input fasta file.
+
+number_of_parallel_processes
+    The amount of parallel processes to run (has to be below or equal the 
+    amount of processors in your PC).
+
+use_BepiPred
+    If use or not BepiPred, which is used to predict B cell epitopes. (1 = 
+    Yes, 0 = No)
+
+use_IsoelectricPoint
+    If use or not IsoelectricPoint, which is used to predict the Isoelectric 
+    Point of a protein. (1 = Yes, 0 = No)
+
+use_Iupred
+    If use or not Iupred, which is used to detect intrinsically disordered 
+    proteins. (1 = Yes, 0 = No)
+
+use_MolecularWeight
+    If use or not CrossReactivity, which is used to predict the Molecular 
+    Weight of a protein. (1 = Yes, 0 = No)
+
+use_NetMHCIIpan
+    If use or not NetMHCIIpan, which is used to predict binding of peptides 
+    to MHC class II molecules. (1 = Yes, 0 = No)
+
+use_NetOglyc
+    If use or not NetOglyc, which is used to detect possible O-glycosylation 
+    sites. (1 = Yes, 0 = No)
+
+use_NetSurfp
+    If use or not NetSurfp, which is used to predict relative surface 
+    accessibility, and probabilities for both alpha helix and beta strand. (1 
+    = Yes, 0 = No)
+
+use_Paircoil2
+    If use or not Paircoil2, which is used to predict the parallel coiled 
+    coil fold of a protein. (1 = Yes, 0 = No)
+
+use_PredGPI
+    If use or not PredGPI, which is used to predict which proteins are 
+    GPI-anchored proteins. (1 = Yes, 0 = No)
+
+use_SignalP
+    If use or not SignalP, which is used to detect the presence and location 
+    of signal peptide cleavage sites. (1 = Yes, 0 = No)
+
+use_TMHMM
+    If use or not TMHMM, which is used to predict if the protein has 
+    transmembrane helices. (1 = Yes, 0 = No)
+
+use_Xstream
+    If use or not Xstream, which is used to detect tandem repeats in 
+    proteins. (1 = Yes, 0 = No)
+
+use_SelfSimilarity
+    If use or not SelfSimilarity, which is used to detect highly similar 
+    sequences inside the same proteome. (1 = Yes, 0 = No)
+
+use_CrossReactivity
+    If use or not CrossReactivity, which is used to detect highly similar 
+    sequences between host and pathogen. (1 = Yes, 0 = No)
+
+use_Coendemicity
+    If use or not Coendemicity, which is used to penalize highly similar 
+    sequences between pathogen and another coendemic pathogen. (1 = Yes, 0 = 
+    No)
+
+NetMHCIIpan_binding_peptide_length
+    The length of the fragment used when analyzing with NetMHCIIpan (integer 
+    between 9 and 30).
+
+NetMHCIIpan_alleles
+    The names of the MHC class II alleles to consider when analyzing 
+    (separated by spaces).
+
+Paircoil2_fragment_length
+    The length of each fragment Paircoil2 will analyze (has to be >= 28).
+
+Paircoil2_threshold
+    The minimum probability of being in a coiled coil that the data has to 
+    have to be considered to be in coiled coil (between 0 and 1).
+
+SignalP_organism_group
+    The organism group of the genome to analyze. It can be: \"euk\", \"gram+\" or 
+    \"gram-\".
+
+Xstream_min_period
+    The minimum period that a tandem repeat has to have to be recorded when 
+    using Xstream.
+
+Xstream_min_copy_number
+    The minimum copy number that a tandem repeat has to have to be recorded 
+    when using Xstream.
+
+Xstream_max_consensus_error
+    The maximum consensus error that a tandem repeat has to have to be 
+    recorded when using Xstream.
+
+Coendemicity_protein_min_kmer_amount_for_penalty
+    The minimum amount of times a given kmer has to appear in the coendemic 
+    proteome to apply the penalty to proteins containing it.
+
+Coendemicity_protein_start_penalty_proportion
+    The proportion of coendemic kmers a protein has to have to start applying 
+    a penalty to it.
+
+Coendemicity_protein_max_penalty_proportion
+    The proportion of coendemic kmers a protein has to have to apply the 
+    maximum penalty to it.
+
+Coendemicity_peptide_min_kmer_amount_for_penalty
+    The minimum amount of times a given kmer has to appear in the coendemic 
+    proteome to apply the penalty to peptides containing it.
+
+Coendemicity_peptide_start_penalty_proportion
+    The proportion of coendemic kmers a peptide has to have to start applying 
+    a penalty to it.
+
+Coendemicity_peptide_max_penalty_proportion
+    The proportion of coendemic kmers a peptide has to have to apply the 
+    maximum penalty to it.
