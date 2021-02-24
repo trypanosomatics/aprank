@@ -15,6 +15,14 @@ Based on Pepranker v4.0 by Mauricio Brunner, Diego Ramoa, Santiago Carmona and F
 
 Needs Perl (Config::General, Bio::SeqIO::fasta, Parallel::ForkManager), R (data.table, pROC, ggplot2), BepiPred 1.0, Iupred 1.0, netMHCIIpan 2.0, NetOGlyc 3.1d, NetSurfp 1.0, Paircoil2, PredGPI 1.4.3, SignalP 4.0, TMHMM 2.0c and Xstream 1.71
 
+## GETTING THE MODELS
+
+Due to their size, the models aren't present in github. You will need to download them from [here](https://www.google.com/) and place them inside the ***/models*** folder.
+
+## INSTALLING THE PREDICTORS
+
+APRANK requires many third-party predictors to work. See the **INSTALL** file for more detailed guide on how to get, install, configure and test each of the predictors needed.
+
 ## RUNNING APRANK VIA R
 
 Edit "R_pipeline.R" using RStudio or other text editor. Adjust the config variables as necessary.
