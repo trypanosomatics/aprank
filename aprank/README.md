@@ -8,6 +8,7 @@ the probability of that protein being antigenic
 ## AUTHORS
 
 APRANK v1.0 by Alejandro Ricci
+
 Based on Pepranker v4.0 by Mauricio Brunner, Diego Ramoa, Santiago Carmona and Fernán Agüero
 
 ## DEPENDENCES
