@@ -265,6 +265,15 @@ PredGPI.py /usr/local/bepipred-1.0/test/CHO.fsa
 sudo apt-get install emboss
 
 ##################
+#Getting the models
+##################
+#If you didn't already download the models, get them from https://mega.nz/folder/3U00RLBJ#8H8hGMuLVuEn_SaqXG1bRw
+#Place both models in the /models folder
+#In the end you should have two files in the /models folder:
+#/models/peptide_balanced_generic_model.rda
+#/models/protein_balanced_generic_model.rda
+
+##################
 #Running APRANK via R
 ##################
 #Edit "R_pipeline.R" using RStudio or other text editor. Adjust the config variables as necessary.

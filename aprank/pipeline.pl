@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-use warnings; #remove once finished?
+use warnings;
 use strict;
 
 use Getopt::Long qw(GetOptions); #to get arguments from console
@@ -179,18 +179,3 @@ system("Rscript --vanilla " . $internal_config{"LIB_LOCATION"} . "/00_pipeline_f
     " " . $Xstream_min_period . " " . $Xstream_min_copy_number . " " . $Xstream_max_consensus_error .
     " " . $Coendemicity_protein_min_kmer_amount_for_penalty . " " . $Coendemicity_protein_start_penalty_proportion . " " . $Coendemicity_protein_max_penalty_proportion .
     " " . $Coendemicity_peptide_min_kmer_amount_for_penalty . " " . $Coendemicity_peptide_start_penalty_proportion . " " . $Coendemicity_peptide_max_penalty_proportion);
-
-#"aprank_folder",
-#"use_BepiPred", "use_IsoelectricPoint", "use_Iupred", "use_MolecularWeight",
-#"use_NetMHCIIpan", "use_NetOglyc", "use_NetSurfp", "use_Paircoil2",
-#"use_PredGPI", "use_SignalP", "use_TMHMM", "use_Xstream",
-#"use_SelfSimilarity", "use_CrossReactivity", "use_Coendemicity",
-#"output_data_folder", "input_fasta_file", "CrossReactivity_fasta_file", "Coendemicity_fasta_file",
-#"number_of_parallel_processes",
-#"peptide_length", "peptide_overlap", "KmerSimilarity_kmer_length",
-#"SignalP_organism_group",
-#"NetMHCIIpan_binding_peptide_length", "NetMHCIIpan_alleles",
-#"Paircoil2_fragment_length", "Paircoil2_threshold",
-#"Xstream_min_period", "Xstream_min_copy_number", "Xstream_max_consensus_error",
-#"Coendemicity_protein_min_amount_in_coendemic_proteome_for_penalty", "Coendemicity_protein_start_penalty_proportion", "Coendemicity_protein_max_penalty_proportion",
-#"Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty", "Coendemicity_peptide_start_penalty_proportion", "Coendemicity_peptide_max_penalty_proportion"
