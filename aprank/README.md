@@ -17,7 +17,11 @@ Needs Perl (Config::General, Bio::SeqIO::fasta, Parallel::ForkManager), R (data.
 
 ## GETTING THE MODELS
 
-Due to their size, the models aren't present in this repository. You will need to download them from [here](https://www.google.com/) and place them inside the ***/models*** folder.
+Due to their size, the models aren't present in this repository. You will need to download them from [here](https://mega.nz/folder/3U00RLBJ#8H8hGMuLVuEn_SaqXG1bRw) and place them inside the ***/models*** folder.
+
+You should end up with the following files:
+- /models/peptide_balanced_generic_model.rda
+- /models/protein_balanced_generic_model.rda
 
 ## INSTALLING THE PREDICTORS
 
