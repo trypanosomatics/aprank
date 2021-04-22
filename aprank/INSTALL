@@ -267,7 +267,7 @@ sudo apt-get install emboss
 ##################
 #Getting the models
 ##################
-#If you didn't already download the models, get them from https://mega.nz/folder/3U00RLBJ#8H8hGMuLVuEn_SaqXG1bRw
+#If you didn't already download the models, get them from https://doi.org/10.5061/dryad.zcrjdfnb1
 #Place both models in the /models folder
 #In the end you should have two files in the /models folder:
 #/models/peptide_balanced_generic_model.rda
