@@ -1,12 +1,12 @@
 # BSD 2-Clause License
 # 
-# Copyright (c) 2021, Alejandro Ricci (aricci@iib.unsam.edu.ar), Fernán Agüero (fernan@iib.unsam.edu.ar)
+# Copyright (c) 2021, Alejandro Ricci (aricci@iib.unsam.edu.ar), Fern?n Ag?ero (fernan@iib.unsam.edu.ar)
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #   
-# 1. Redistributions of source code must retain the above copyright notice, this
+#   1. Redistributions of source code must retain the above copyright notice, this
 # list of conditions and the following disclaimer.
 # 
 # 2. Redistributions in binary form must reproduce the above copyright notice,
@@ -80,6 +80,8 @@ runPipeline <-
         dir.create(temp_data_folder)
         output_data_folder <- sprintf("%s/%s", output_data_folder, aux_name)
         dir.create(output_data_folder)
+        predictors_outputs_data_folder <- sprintf("%s/predictors_outputs", output_data_folder)
+        dir.create(predictors_outputs_data_folder)
         
         #Set the rest
         max_protein_length <- 9999
@@ -99,11 +101,11 @@ runPipeline <-
         
         #The output method can be "write" (makes files), "list" (returns a list), or "both"
         predictors_output_method <- "both"
-        output_per_aminoacid_file <- sprintf("%s/output_per_aminoacid.tsv", output_data_folder)
-        output_per_protein_file <- sprintf("%s/output_per_protein.tsv", output_data_folder)
-        output_per_kmer_file <- sprintf("%s/output_per_kmer.tsv", output_data_folder)
-        output_per_peptide_file <- sprintf("%s/output_per_peptide.tsv", output_data_folder)
-        output_per_repeat_file <- sprintf("%s/output_per_repeat.tsv", output_data_folder)
+        output_per_aminoacid_file <- sprintf("%s/output_per_aminoacid.tsv", predictors_outputs_data_folder)
+        output_per_protein_file <- sprintf("%s/output_per_protein.tsv", predictors_outputs_data_folder)
+        output_per_kmer_file <- sprintf("%s/output_per_kmer.tsv", predictors_outputs_data_folder)
+        output_per_peptide_file <- sprintf("%s/output_per_peptide.tsv", predictors_outputs_data_folder)
+        output_per_repeat_file <- sprintf("%s/output_per_repeat.tsv", predictors_outputs_data_folder)
         
         #NetSurfp uses multiple cores per process. I would give 4 cores to each process
         #This has to be 1 or more (1 meaning just 1 process without parallelization)
@@ -123,7 +125,7 @@ runPipeline <-
         
         #The output method can be "write" (makes files), "list" (returns a list), or "both"
         protein_normalization_output_method <- "both"
-        normalized_output_per_protein_file <- sprintf("%s/normalized_output_per_protein.tsv", output_data_folder)
+        normalized_output_per_protein_file <- sprintf("%s/normalized_output_per_protein.tsv", predictors_outputs_data_folder)
         
         #########################################-
         #### Config - Normalize peptide data ####
@@ -136,7 +138,7 @@ runPipeline <-
         
         #The output method can be "write" (makes files), "list" (returns a list), or "both"
         peptide_normalization_output_method <- "both"
-        normalized_output_per_peptide_file <- sprintf("%s/normalized_output_per_peptide.tsv", output_data_folder)
+        normalized_output_per_peptide_file <- sprintf("%s/normalized_output_per_peptide.tsv", predictors_outputs_data_folder)
         
         ## Paircoil2
         #Here I'm asking if there is a fragment of length Paircoil2_fragment_length of aa above Paircoil2_threshold
