@@ -90,3 +90,29 @@ PERL COMMAND LINE PARAMETERS
     [-xsmc Xstream_min_copy_number]            => The minimum copy number that a tandem repeat has to have to be recorded when using Xstream.
     [-xsme Xstream_max_consensus_error]        => The maximum consensus error that a tandem repeat has to have to be recorded when using 
                                                   Xstream.
+READING THE OUTPUTS
+	By default, APRANK will save the outputs in the /outputs folder, inside a new folder with the FastaName_Date format.
+
+	APRANK will produce two set of scores, one for the proteins and one for the peptides. All scores go from 0 (predicted to be non-antigenic) to 
+	1 (predicted to be antigenic).
+
+	The data for the protein predictions can be found inside the score_output_per_protein.tsv file, and its columns are:
+
+	- id: an internal id assigned ID APRANK to deal with possible repeated proteins IDs
+	- original_id: the original ID found in the FASTA for this protein
+	- protein_score: the antigenicity score predicted by APRANK
+	
+	The data for the peptide predictions can be found inside the score_output_per_peptide.tsv file, and its columns are:
+
+	- id: the corresponding protein ID
+	- original_id: the corresponding protein original ID
+	- start: the position in the protein of the peptide's first amino acid
+	- end: the position in the protein of the peptide's last amino acid
+	- peptide: the peptide's sequence
+	- peptide_score: the antigenicity score predicted by APRANK
+	- protein_score: the corresponding protein antigenicity score
+	- combined_score: the combined antigenicity score, including info of both protein and peptide scores
+	
+	Also, if calculating the Coendemicity, an extra set of scores will appear with a _wCoendemicPenalty suffix in the name.
+
+	APRANK will also save the processed data from the predictors inside the /predictors_outputs folder just in case you need it.
