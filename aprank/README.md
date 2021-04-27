@@ -75,7 +75,7 @@ The data for the protein predictions can be found inside the **score_output_per_
 - **original_id:** the original ID found in the FASTA for this protein
 - **protein_score:** the antigenicity score predicted by APRANK
 
-The data for the protein predictions can be found inside the **score_output_per_peptide.tsv** file, and its columns are:
+The data for the peptide predictions can be found inside the **score_output_per_peptide.tsv** file, and its columns are:
 
 - **id:** the corresponding protein ID
 - **original_id:** the corresponding protein original ID
