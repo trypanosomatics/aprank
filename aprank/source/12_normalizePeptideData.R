@@ -1,12 +1,12 @@
 # BSD 2-Clause License
 # 
-# Copyright (c) 2021, Alejandro Ricci (aricci@iib.unsam.edu.ar), Fernán Agüero (fernan@iib.unsam.edu.ar)
+# Copyright (c) 2021, Alejandro Ricci (aricci@iib.unsam.edu.ar), FernÃ¡n AgÃ¼ero (fernan@iib.unsam.edu.ar)
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #   
-#   1. Redistributions of source code must retain the above copyright notice, this
+# 1. Redistributions of source code must retain the above copyright notice, this
 # list of conditions and the following disclaimer.
 # 
 # 2. Redistributions in binary form must reproduce the above copyright notice,
@@ -538,80 +538,3 @@ normalizePeptideData_fromFile <- function(output_per_aminoacid_file, output_per_
                          use_IsoelectricPoint = use_IsoelectricPoint, use_MolecularWeight = use_MolecularWeight,
                          use_SelfSimilarity = use_SelfSimilarity, use_CrossReactivity = use_CrossReactivity, use_Coendemicity = use_Coendemicity)
 }
-
-# ##################-
-# #### **CALL** ####
-# ##################-
-# ####################################-
-# #### Config - Select Predictors ####
-# ####################################-
-# ## General
-# use_BepiPred <- 1
-# use_IsoelectricPoint <- 1
-# use_Iupred <- 1
-# use_MolecularWeight <- 1
-# use_NetMHCIIpan <- 1
-# use_NetOglyc <- 1
-# use_NetSurfp <- 1
-# use_Paircoil2 <- 1
-# use_PredGPI <- 1
-# use_SignalP <- 1
-# use_TMHMM <- 1
-# use_Xstream <- 1
-# 
-# use_SelfSimilarity <- 1
-# use_CrossReactivity <- 1
-# use_Coendemicity <- 1
-# 
-# #################################-
-# #### Config - Normalize data ####
-# #################################-
-# ## General
-# setwd("/home/alejandror/Workspace/Dropbox_Link/Programas/20170002_Pepranker/APRANK")
-# 
-# input_data_folder <- "/home/alejandror/Workspace/Dropbox_Link/Programas/20170002_Pepranker/APRANK"
-# temp_data_folder <- "/home/alejandror/Workspace/Dropbox_Link/Programas/20170002_Pepranker/APRANK/tmp"
-# output_data_folder <- "/home/alejandror/Workspace/Dropbox_Link/Programas/20170002_Pepranker/APRANK"
-# scripts_folder <- "/home/alejandror/Workspace/Dropbox_Link/Programas/20170002_Pepranker/APRANK/source2"
-# 
-# source(sprintf("%s/lib/normalization.R", scripts_folder))
-# source(sprintf("%s/lib/aux.R", scripts_folder))
-# 
-# #The input files are the outputs from the predictors
-# output_per_aminoacid_file <- sprintf("%s/output_per_aminoacid.tsv", output_data_folder)
-# output_per_protein_file <- sprintf("%s/output_per_protein.tsv", output_data_folder)
-# output_per_kmer_file <- sprintf("%s/output_per_kmer.tsv", output_data_folder)
-# output_per_peptide_file <- sprintf("%s/output_per_peptide.tsv", output_data_folder)
-# output_per_repeat_file <- sprintf("%s/output_per_repeat.tsv", output_data_folder)
-# 
-# #The output method can be "write" (makes files), "list" (returns a list), or "both"
-# output_method <- "write"
-# normalized_output_per_peptide_file <- sprintf("%s/normalized_output_per_peptide.tsv", output_data_folder)
-# 
-# peptide_length <- 15
-# peptide_overlap <- 14
-# 
-# ## Paircoil2
-# #This is to set to 0 or 1 the value of each aa and then calculate an average for the peptide
-# Paircoil2_threshold <- 0.5
-# 
-# ## Coendemicity
-# # Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty is the min amount of times a given kmer has to appear in the
-# # coendemic proteome to apply the penalty to peptides containing it
-# Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty <- 0
-# # Coendemicity_peptide_start_penalty_proportion is the starting proportion to apply a penalty to the score
-# # This penalty goes up until the proportion reaches the Coendemicity_protein_max_penalty_proportion, where the penalty
-# # becomes 1 and the score 0
-# Coendemicity_peptide_start_penalty_proportion <- 0
-# Coendemicity_peptide_max_penalty_proportion <- 2/15
-# 
-# normalizePeptideData_fromFile(output_per_aminoacid_file = output_per_aminoacid_file, output_per_protein_file = output_per_protein_file, output_per_kmer_file = output_per_kmer_file, output_per_peptide_file = output_per_peptide_file, output_per_repeat_file = output_per_repeat_file,
-#                               output_method = output_method, normalized_output_per_peptide_file = normalized_output_per_peptide_file,
-#                               peptide_length = peptide_length, peptide_overlap = peptide_overlap,
-#                               Paircoil2_threshold = Paircoil2_threshold,
-#                               Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty = Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty, Coendemicity_peptide_start_penalty_proportion = Coendemicity_peptide_start_penalty_proportion, Coendemicity_peptide_max_penalty_proportion = Coendemicity_peptide_max_penalty_proportion,
-#                               use_BepiPred = use_BepiPred, use_Paircoil2 = use_Paircoil2, use_PredGPI = use_PredGPI, use_SignalP = use_SignalP,
-#                               use_TMHMM = use_TMHMM, use_NetSurfp = use_NetSurfp,
-#                               use_Iupred = use_Iupred, use_NetOglyc = use_NetOglyc, use_Xstream = use_Xstream, use_NetMHCIIpan = use_NetMHCIIpan,
-#                               use_IsoelectricPoint = use_IsoelectricPoint, use_MolecularWeight = use_MolecularWeight,
-#                               use_SelfSimilarity = use_SelfSimilarity, use_CrossReactivity = use_CrossReactivity, use_Coendemicity = use_Coendemicity)

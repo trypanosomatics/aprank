@@ -1,12 +1,12 @@
 # BSD 2-Clause License
 # 
-# Copyright (c) 2021, Alejandro Ricci (aricci@iib.unsam.edu.ar), Fernán Agüero (fernan@iib.unsam.edu.ar)
+# Copyright (c) 2021, Alejandro Ricci (aricci@iib.unsam.edu.ar), FernÃ¡n AgÃ¼ero (fernan@iib.unsam.edu.ar)
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #   
-#   1. Redistributions of source code must retain the above copyright notice, this
+# 1. Redistributions of source code must retain the above copyright notice, this
 # list of conditions and the following disclaimer.
 # 
 # 2. Redistributions in binary form must reproduce the above copyright notice,
@@ -1389,103 +1389,3 @@ runPredictors <- function(input_fasta_file,
     
     list_output
 }
-
-##################-
-#### **CALL** ####
-##################-
-##################################-
-#### Call - Select Predictors ####
-##################################-
-# ## General
-# use_BepiPred <- 1
-# use_IsoelectricPoint <- 1
-# use_MolecularWeight <- 1
-# use_Paircoil2 <- 1
-# use_PredGPI <- 1
-# use_SignalP <- 1
-# use_TMHMM <- 1
-# use_NetSurfp <- 1
-# 
-# use_Iupred <- 1
-# use_NetOglyc <- 1
-# use_Xstream <- 1
-# use_NetMHCIIpan <- 1
-# 
-# use_SelfSimilarity <- 1
-# use_CrossReactivity <- 1
-# use_Coendemicity <- 0
-# 
-# ###############################-
-# #### Call - Run Predictors ####
-# ###############################-
-# ## General
-# setwd("/home/alejandror/Workspace/Dropbox_Link/Programas/20170002_Pepranker/APRANK")
-# 
-# input_data_folder <- "/home/alejandror/Workspace/Dropbox_Link/Programas/20170002_Pepranker/APRANK"
-# temp_data_folder <- "/home/alejandror/Workspace/Dropbox_Link/Programas/20170002_Pepranker/APRANK/tmp"
-# output_data_folder <- "/home/alejandror/Workspace/Dropbox_Link/Programas/20170002_Pepranker/APRANK"
-# scripts_folder <- "/home/alejandror/Workspace/Dropbox_Link/Programas/20170002_Pepranker/APRANK/source2"
-# 
-# # input_fasta_file <- sprintf("%s/88_tests_and_stuff/test_2.fasta", input_data_folder)
-# input_fasta_file <- sprintf("%s/88_tests_and_stuff/cox/fasta to check/mix.fasta", input_data_folder)
-# 
-# temp_fasta_file <- sprintf("%s/temp.fasta", temp_data_folder)
-# temp_tabbed_fasta_file <- sprintf("%s/temp_fasta_tabbed.tsv", temp_data_folder)
-# temp_splitted_fasta_file <- sprintf("%s/temp_fasta_splitted.tsv", temp_data_folder)
-# temp_aminoacid_fasta_file <- sprintf("%s/temp_fasta_aminoacids.tsv", temp_data_folder)
-# 
-# #The output method can be "write" (makes files), "list" (returns a list), or "both"
-# output_method <- "write"
-# output_per_aminoacid_file <- sprintf("%s/output_per_aminoacid.tsv", output_data_folder)
-# output_per_protein_file <- sprintf("%s/output_per_protein.tsv", output_data_folder)
-# output_per_kmer_file <- sprintf("%s/output_per_kmer.tsv", output_data_folder)
-# output_per_peptide_file <- sprintf("%s/output_per_peptide.tsv", output_data_folder)
-# output_per_repeat_file <- sprintf("%s/output_per_repeat.tsv", output_data_folder)
-# 
-# #This has to be 1 or more (1 meaning just 1 process without parallelization)
-# number_of_parallel_processes <- 1
-# 
-# peptide_length <- 15
-# peptide_overlap <- 14
-# 
-# ## SignalP
-# #The organism group of the genome to analyze. It can be: "euk", "gram+" or "gram-".
-# SignalP_organism_group <- "gram-"
-# 
-# ## Xstream
-# Xstream_path <- "/usr/local/xstream/xstream.jar"
-# 
-# ## NetMHCIIPan
-# # The length of the fragment used when analyzing with NetMHCIIpan (integer between 9 and 50).
-# NetMHCIIpan_binding_peptide_length <- 9
-# # The names of the MHC class II alleles to consider when analyzing
-# NetMHCIIPan_alleles <- c("DRB1_0101",
-#                          "DRB3_0101",
-#                          "DRB4_0101",
-#                          "DRB5_0101")
-# 
-# ## Self Similarity, CrossReactivity & Coendemicity
-# KmerSimilarity_kmer_length <- 6
-# 
-# ## CrossReactivity (Pathogen vs Host)
-# CrossReactivity_fasta_file <- sprintf("%s/88_tests_and_stuff/test_crossreactivity.fasta", input_data_folder)
-# 
-# ## Coendemicity (Pathogen vs Other pathogen)
-# Coendemicity_fasta_file <- sprintf("%s/88_tests_and_stuff/test_coendemicity.fasta", input_data_folder)
-# 
-# runPredictors(input_fasta_file = input_fasta_file,
-#               temp_data_folder = temp_data_folder, output_data_folder = output_data_folder, scripts_folder = scripts_folder,
-#               temp_fasta_file = temp_fasta_file, temp_tabbed_fasta_file = temp_tabbed_fasta_file, temp_splitted_fasta_file = temp_splitted_fasta_file, temp_aminoacid_fasta_file = temp_aminoacid_fasta_file,
-#               output_method = output_method,
-#               output_per_aminoacid_file = output_per_aminoacid_file, output_per_protein_file = output_per_protein_file, output_per_kmer_file = output_per_kmer_file, output_per_peptide_file = output_per_peptide_file, output_per_repeat_file = output_per_repeat_file,
-#               number_of_parallel_processes = number_of_parallel_processes,
-#               peptide_length = peptide_length, peptide_overlap = peptide_overlap,
-#               SignalP_organism_group = SignalP_organism_group,
-#               Xstream_path = Xstream_path,
-#               NetMHCIIpan_binding_peptide_length = NetMHCIIpan_binding_peptide_length, NetMHCIIPan_alleles = NetMHCIIPan_alleles,
-#               KmerSimilarity_kmer_length = KmerSimilarity_kmer_length, CrossReactivity_fasta_file = CrossReactivity_fasta_file, Coendemicity_fasta_file = Coendemicity_fasta_file,
-#               use_BepiPred = use_BepiPred, use_Paircoil2 = use_Paircoil2, use_PredGPI = use_PredGPI, use_SignalP = use_SignalP,
-#               use_TMHMM = use_TMHMM, use_NetSurfp = use_NetSurfp,
-#               use_Iupred = use_Iupred, use_NetOglyc = use_NetOglyc, use_Xstream = use_Xstream, use_NetMHCIIpan = use_NetMHCIIpan,
-#               use_IsoelectricPoint = use_IsoelectricPoint, use_MolecularWeight = use_MolecularWeight,
-#               use_SelfSimilarity = use_SelfSimilarity, use_CrossReactivity = use_CrossReactivity, use_Coendemicity = use_Coendemicity)

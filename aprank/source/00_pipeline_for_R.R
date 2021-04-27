@@ -1,12 +1,12 @@
 # BSD 2-Clause License
 # 
-# Copyright (c) 2021, Alejandro Ricci (aricci@iib.unsam.edu.ar), Fernán Agüero (fernan@iib.unsam.edu.ar)
+# Copyright (c) 2021, Alejandro Ricci (aricci@iib.unsam.edu.ar), FernÃ¡n AgÃ¼ero (fernan@iib.unsam.edu.ar)
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #   
-#   1. Redistributions of source code must retain the above copyright notice, this
+# 1. Redistributions of source code must retain the above copyright notice, this
 # list of conditions and the following disclaimer.
 # 
 # 2. Redistributions in binary form must reproduce the above copyright notice,
@@ -319,6 +319,7 @@ runPipeline <-
         ########################-
         #### Run Predictors ####
         ########################-
+        suppressWarnings({
         output_method <- predictors_output_method
         list_output <-
             runPredictors(input_fasta_file = input_fasta_file,
@@ -345,6 +346,7 @@ runPipeline <-
         output_per_repeat <- list_output[["output_per_repeat"]]
         rm(list_output)
         gc()
+        })
         
         ################################-
         #### Normalize Protein Data ####
@@ -419,14 +421,16 @@ runPipeline <-
                                    peptide_model = peptide_balanced_generic_model,
                                    score_output_per_protein = score_output_per_protein,
                                    output_method = output_method, score_output_per_peptide_file =  score_output_per_peptide_file,
-                                   use_BepiPred = use_BepiPred, use_Paircoil2 =  use_Paircoil2, use_PredGPI =  use_PredGPI, use_SignalP =  use_SignalP,
+                                   use_BepiPred = use_BepiPred, use_Paircoil2 =  use_Paircoil2, use_PredGPI =  use_PredGPI, use_SignalP = use_SignalP,
                                    use_TMHMM = use_TMHMM, use_NetSurfp =  use_NetSurfp,
                                    use_Iupred = use_Iupred, use_NetOglyc =  use_NetOglyc, use_Xstream =  use_Xstream, use_NetMHCIIpan =  use_NetMHCIIpan,
-                                   use_SelfSimilarity = use_SelfSimilarity, use_CrossReactivity = use_CrossReactivity)
+                                   use_SelfSimilarity = use_SelfSimilarity, use_CrossReactivity = use_CrossReactivity, use_Coendemicity = use_Coendemicity)
         
         score_output_per_peptide <- list_output[["score_output_per_peptide"]]
         rm(list_output)
         gc()
+        
+        writeLines(sprintf("APRANK has finished successfully! Output can be found in %s", output_data_folder))
         
         #####################-
         #### Remove Temp ####

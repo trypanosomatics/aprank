@@ -1,5 +1,5 @@
 # Default values for the arguments for the main function
-# You can modify them here or passing the new values by argument as explained in Readme.txt
+# You can modify them here or passing the new values by argument as explained in USAGE file
 
 ########################
 ### Additional Input Files

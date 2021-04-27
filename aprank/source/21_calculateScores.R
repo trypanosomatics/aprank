@@ -1,12 +1,12 @@
 # BSD 2-Clause License
 # 
-# Copyright (c) 2021, Alejandro Ricci (aricci@iib.unsam.edu.ar), Fernán Agüero (fernan@iib.unsam.edu.ar)
+# Copyright (c) 2021, Alejandro Ricci (aricci@iib.unsam.edu.ar), FernÃ¡n AgÃ¼ero (fernan@iib.unsam.edu.ar)
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #   
-#   1. Redistributions of source code must retain the above copyright notice, this
+# 1. Redistributions of source code must retain the above copyright notice, this
 # list of conditions and the following disclaimer.
 # 
 # 2. Redistributions in binary form must reproduce the above copyright notice,
@@ -70,7 +70,7 @@ calculateProteinScores <- function(normalized_output_per_protein,
         model_data <- as.data.table(protein_model$model)
         
         #Select which columns to use in the new prediction
-        columns_used <- c("is_antigen")
+        columns_used <- c("in_antigenic_cluster")
         if (use_BepiPred == 1) {columns_used <- c(columns_used, "BepiPred")}
         if (use_Paircoil2 == 1) {columns_used <- c(columns_used, "Paircoil2")}
         if (use_PredGPI == 1) {columns_used <- c(columns_used, "PredGPI")}
@@ -90,7 +90,7 @@ calculateProteinScores <- function(normalized_output_per_protein,
         model_data <- model_data[, columns_used, with=FALSE]
         
         #Recalculate the model that uses only this new columns
-        protein_model <- glm(is_antigen ~ ., family = binomial(link = 'logit'), data = model_data)
+        protein_model <- glm(in_antigenic_cluster ~ ., family = binomial(link = 'logit'), data = model_data)
     }
     
     #########################-
@@ -141,10 +141,10 @@ calculateProteinScores_fromFile <- function(normalized_output_per_protein_file,
                                             use_SelfSimilarity = 1, use_CrossReactivity = 1, use_Coendemicity = 1) {
     normalized_output_per_protein <- fread(normalized_output_per_protein_file, header = T, sep = "\t", na.strings = NULL)
     
-    load(protein_model_file) # > model
+    load(protein_model_file) # > protein_balanced_generic_model
     
     calculateProteinScores(normalized_output_per_protein = normalized_output_per_protein,
-                           protein_model = model,
+                           protein_model = protein_balanced_generic_model,
                            output_method = output_method, score_output_per_protein_file =  score_output_per_protein_file,
                            use_BepiPred = use_BepiPred, use_Paircoil2 =  use_Paircoil2, use_PredGPI =  use_PredGPI, use_SignalP =  use_SignalP,
                            use_TMHMM = use_TMHMM, use_NetSurfp =  use_NetSurfp,
@@ -186,7 +186,7 @@ calculatePeptideScores <- function(normalized_output_per_peptide,
         model_data <- as.data.table(peptide_model$model)
         
         #Select which columns to use in the new prediction
-        columns_used <- c("is_antigen")
+        columns_used <- c("is_antigenic")
         if (use_BepiPred == 1) {columns_used <- c(columns_used, "BepiPred")}
         if (use_Paircoil2 == 1) {columns_used <- c(columns_used, "Paircoil2")}
         if (use_PredGPI == 1) {columns_used <- c(columns_used, "PredGPI")}
@@ -206,7 +206,7 @@ calculatePeptideScores <- function(normalized_output_per_peptide,
         model_data <- model_data[, columns_used, with=FALSE]
         
         #Recalculate the model that uses only this new columns
-        peptide_model <- glm(is_antigen ~ ., family = binomial(link = 'logit'), data = model_data)
+        peptide_model <- glm(is_antigenic ~ ., family = binomial(link = 'logit'), data = model_data)
     }
     
     #########################-
@@ -270,12 +270,12 @@ calculatePeptideScores_fromFile <- function(normalized_output_per_peptide_file,
                                             use_SelfSimilarity = 1, use_CrossReactivity = 1, use_Coendemicity = 1) {
     normalized_output_per_peptide <- fread(normalized_output_per_peptide_file, header = T, sep = "\t", na.strings = NULL)
     
-    load(peptide_model_file) # > model
+    load(peptide_model_file) # > peptide_balanced_generic_model
     
     score_output_per_protein <- fread(score_output_per_protein_file, header = T, sep = "\t", na.strings = NULL)
     
     calculatePeptideScores(normalized_output_per_peptide = normalized_output_per_peptide,
-                           peptide_model = model,
+                           peptide_model = peptide_balanced_generic_model,
                            score_output_per_protein = score_output_per_protein,
                            output_method = output_method, score_output_per_peptide_file =  score_output_per_peptide_file,
                            use_BepiPred = use_BepiPred, use_Paircoil2 =  use_Paircoil2, use_PredGPI =  use_PredGPI, use_SignalP =  use_SignalP,
@@ -283,78 +283,3 @@ calculatePeptideScores_fromFile <- function(normalized_output_per_peptide_file,
                            use_Iupred = use_Iupred, use_NetOglyc =  use_NetOglyc, use_Xstream =  use_Xstream, use_NetMHCIIpan =  use_NetMHCIIpan,
                            use_SelfSimilarity = use_SelfSimilarity, use_CrossReactivity = use_CrossReactivity, use_Coendemicity = use_Coendemicity)
 }
-
-##################-
-#### **CALL** ####
-##################-
-####################################-
-#### Config - Select Predictors ####
-####################################-
-# ## General
-# use_BepiPred <- 1
-# use_IsoelectricPoint <- 1
-# use_Iupred <- 1
-# use_MolecularWeight <- 1
-# use_NetMHCIIpan <- 1
-# use_NetOglyc <- 1
-# use_NetSurfp <- 1
-# use_Paircoil2 <- 1
-# use_PredGPI <- 1
-# use_SignalP <- 1
-# use_TMHMM <- 1
-# use_Xstream <- 1
-# 
-# use_SelfSimilarity <- 1
-# use_CrossReactivity <- 1
-# use_Coendemicity <- 1
-# 
-# #################################-
-# #### Config - Protein scores ####
-# #################################-
-# ## General
-# setwd("/home/alejandror/Workspace/Dropbox_Link/Programas/20170002_Pepranker/APRANK")
-# 
-# model_data_folder <- "/home/alejandror/Workspace/Dropbox_Link/Programas/20170002_Pepranker/APRANK/models"
-# output_data_folder <- "/home/alejandror/Workspace/Dropbox_Link/Programas/20170002_Pepranker/APRANK"
-# scripts_folder <- "/home/alejandror/Workspace/Dropbox_Link/Programas/20170002_Pepranker/APRANK/source2"
-# 
-# #The input files are the outputs from the normalizations
-# normalized_output_per_protein_file <- sprintf("%s/normalized_output_per_protein.tsv", output_data_folder)
-# 
-# #The linear model file
-# protein_model_file <- sprintf("%s/generic_protein_model.rda", model_data_folder)
-# 
-# #The output method can be "write" (makes files), "list" (returns a list), or "both"
-# protein_scores_output_method <- "write"
-# score_output_per_protein_file <- sprintf("%s/score_output_per_protein.tsv", output_data_folder)
-# 
-# #################################-
-# #### Config - Peptide scores ####
-# #################################-
-# #The input files are the outputs from the normalizations
-# normalized_output_per_peptide_file <- sprintf("%s/normalized_output_per_peptide.tsv", output_data_folder)
-# 
-# #The linear model file
-# peptide_model_file <- sprintf("%s/generic_peptide_model.rda", model_data_folder)
-# 
-# #The output method can be "write" (makes files), "list" (returns a list), or "both"
-# peptide_scores_output_method <- "write"
-# score_output_per_peptide_file <- sprintf("%s/score_output_per_peptide.tsv", output_data_folder)
-# 
-# calculateProteinScores_fromFile(normalized_output_per_protein_file = normalized_output_per_protein_file,
-#                                 protein_model_file = protein_model_file,
-#                                 output_method = protein_scores_output_method, score_output_per_protein_file =  score_output_per_protein_file,
-#                                 use_BepiPred = use_BepiPred, use_Paircoil2 =  use_Paircoil2, use_PredGPI =  use_PredGPI, use_SignalP =  use_SignalP,
-#                                 use_TMHMM = use_TMHMM, use_NetSurfp =  use_NetSurfp,
-#                                 use_Iupred = use_Iupred, use_NetOglyc =  use_NetOglyc, use_Xstream =  use_Xstream, use_NetMHCIIpan =  use_NetMHCIIpan,
-#                                 use_IsoelectricPoint = use_IsoelectricPoint, use_MolecularWeight =  use_MolecularWeight,
-#                                 use_SelfSimilarity = use_SelfSimilarity, use_CrossReactivity = use_CrossReactivity, use_Coendemicity = use_Coendemicity)
-# 
-# calculatePeptideScores_fromFile(normalized_output_per_peptide_file = normalized_output_per_peptide_file,
-#                                 peptide_model_file = peptide_model_file,
-#                                 score_output_per_protein_file = score_output_per_protein_file,
-#                                 output_method = peptide_scores_output_method, score_output_per_peptide_file =  score_output_per_peptide_file,
-#                                 use_BepiPred = use_BepiPred, use_Paircoil2 =  use_Paircoil2, use_PredGPI =  use_PredGPI, use_SignalP =  use_SignalP,
-#                                 use_TMHMM = use_TMHMM, use_NetSurfp =  use_NetSurfp,
-#                                 use_Iupred = use_Iupred, use_NetOglyc =  use_NetOglyc, use_Xstream =  use_Xstream, use_NetMHCIIpan =  use_NetMHCIIpan,
-#                                 use_SelfSimilarity = use_SelfSimilarity, use_CrossReactivity = use_CrossReactivity, use_Coendemicity = use_Coendemicity)
