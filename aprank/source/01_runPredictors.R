@@ -752,13 +752,20 @@ runPredictors <- function(input_fasta_file,
     ########################################-
     #### Set up the Parallel Processing ####
     ########################################-
+	#Check to not have more processes than proteins
+    unique_protein_amount <- tabbed_fasta[, .N]
+    if (number_of_parallel_processes > unique_protein_amount) {
+        number_of_parallel_processes <- unique_protein_amount
+    }
+    if (number_of_parallel_processes_for_NetSurfp > unique_protein_amount) {
+        number_of_parallel_processes_for_NetSurfp <- unique_protein_amount
+    }
+	
     #Create the subFASTAs for parallel processing
     sub_temp_fastas_files <- c()
     tabbed_fasta$parallel_process_i <- 1
     if (number_of_parallel_processes > 1) {
         tabbed_fasta[, output_aux := sprintf(">%s\n%s", protein, sequence)]
-        
-        unique_protein_amount <- tabbed_fasta[, .N]
         
         division_aux <- unique_protein_amount %/% number_of_parallel_processes
         reminder_aux <- unique_protein_amount %% number_of_parallel_processes
