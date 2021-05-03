@@ -92,7 +92,7 @@ APRANK will also save the processed data from the predictors inside the ***/pred
 
 ## SPEEDING UP APRANK
 
-APRANK can take a long time to run, especially if you are analyzing a large amount of proteins. As a quick example, APRANK took 20 minutes to analyze 10 proteins using 1 core and it took close to 20hs to analyze 5,000 proteins using 12 cores. However, there are a few things you can do to speed things up:
+APRANK can take a long time to run, especially if you are analyzing a large amount of proteins. As a quick example, APRANK took 20 minutes to analyze 10 proteins using 1 core and it took close to 20 hours to analyze 5,000 proteins using 12 cores. However, there are a few things you can do to speed things up:
 
 ### Remove redundant proteins
 
