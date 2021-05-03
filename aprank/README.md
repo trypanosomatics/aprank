@@ -89,3 +89,23 @@ The data for the peptide predictions can be found inside the **score_output_per_
 Also, if calculating the Coendemicity, an extra set of scores will appear with a *_wCoendemicPenalty* suffix in the name.
 
 APRANK will also save the processed data from the predictors inside the ***/predictors_outputs*** folder just in case you need it.
+
+## SPEEDING UP APRANK
+
+APRANK can take a long time to run, especially if you are analyzing a large amount of proteins. As a quick example, APRANK took 20 minutes to analyze 10 proteins using 1 core and it took close to 20hs to analyze 5,000 proteins using 12 cores. However, there are a few things you can do to speed things up:
+
+### Remove redundant proteins
+
+Make sure your proteome doesn't have the exact same sequence more than once under different IDs. If so, try to remove the redundant proteins before running APRANK keeping only one ID per sequence. Once APRANK is done you can assign to the removed IDs the same score as the one from the protein that was analyzed with that same sequence.
+
+### Divide the proteome in several pieces
+
+While this doesn't actually speed up the process, by dividing a really large proteome in smaller pieces you can run each of those pieces at different times, making it more manageable. Not only you will getting some results in the meantime, but this also deals better with any computer issues that might occur. Keep in mind however that the predictor SelfSimilarity, if used, will only compare against the proteins in that same piece, and not the whole proteome.
+
+### Use parallel processing
+
+APRANK supports using many cores in the predictors that take the longest to run. You can do this by changing the variable **number_of_parallel_processes** in either the "R_Pipeline.R" or "Perl Pipeline Config.txt". If using a cluster with many cores, we recommend leaving a few cores unused because it seems to help with the stability of some of the predictors.
+
+### Remove predictors (most likely NetSurfp)
+
+90% to 95% of APRANK's running time is spent in calculating the outputs of the predictors for each protein in the proteome. For this reason, removing some predictors can speed up greatly APRANK's running time, at the cost of a possible loss in prediction accuracy. Keep in mind however that when a predictor is removed APRANK's models are recalculated, making it so as long as you just remove one or two predictors the difference in accuracy isn't that large. The main candidate to be removed to speed things up is NetSurfp, which takes around 50% to 75% of the running time of APRANK.
