@@ -33,20 +33,21 @@ use Bio::SeqIO::fasta;
 
 #Read the arguments
 my $num_args = $#ARGV + 1;
-if ($num_args != 9) {
-    print "\nUsage: tab_and_split_proteome.pl input.fasta sequence_length sequence_overlap max_protein_length replace_nonAA_chars_by output_file tabbed_output_file splitted_output_file aminoacid_output_file\n";
+if ($num_args != 10) {
+    print "\nUsage: tab_and_split_proteome.pl input.fasta sequence_length sequence_overlap min_protein_length max_protein_length replace_nonAA_chars_by output_file tabbed_output_file splitted_output_file aminoacid_output_file\n";
     exit;
 }
 
 my $input_file = $ARGV[0];
 my $sequence_length = $ARGV[1];
 my $sequence_overlap = $ARGV[2];
-my $max_protein_length = $ARGV[3]; #0 means disabled
-my $replace_nonAA_chars_by = $ARGV[4]; #"no" means disabled
-my $output_file = $ARGV[5];
-my $tabbed_output_file = $ARGV[6];
-my $splitted_output_file = $ARGV[7];
-my $aminoacid_output_file = $ARGV[8];
+my $min_protein_length = $ARGV[3];
+my $max_protein_length = $ARGV[4]; #0 means disabled
+my $replace_nonAA_chars_by = $ARGV[5]; #"no" means disabled
+my $output_file = $ARGV[6];
+my $tabbed_output_file = $ARGV[7];
+my $splitted_output_file = $ARGV[8];
+my $aminoacid_output_file = $ARGV[9];
 
 #Read the new file as a proteome using the Bio package
 my $proteome = new Bio::SeqIO::fasta(-file => "$input_file", '-format' => 'multifasta');
@@ -63,21 +64,23 @@ while (my $seq = $proteome->next_seq()) {
     my $sequence = $seq -> seq();    
 
     $sequence = uc $sequence;
-    if (($max_protein_length > 0) && (length($sequence) > $max_protein_length)) {
-        $sequence = substr($sequence, 0, $max_protein_length);
-    }
-    if ($replace_nonAA_chars_by ne "no") {
-        #Remove any strange characters from the sequence
-        $sequence =~ s/[^ACDEFGHIKLMNPQRSTVWY]/$replace_nonAA_chars_by/g;    
-    }
-    
-    my $new_protein_ID = "p_$new_protein_ID_index";
-    $new_protein_ID_index++;
+    if (length($sequence) >= $min_protein_length) {
+        if (($max_protein_length > 0) && (length($sequence) > $max_protein_length)) {
+            $sequence = substr($sequence, 0, $max_protein_length);
+        }
+        if ($replace_nonAA_chars_by ne "no") {
+            #Remove any strange characters from the sequence
+            $sequence =~ s/[^ACDEFGHIKLMNPQRSTVWY]/$replace_nonAA_chars_by/g;    
+        }
+        
+        my $new_protein_ID = "p_$new_protein_ID_index";
+        $new_protein_ID_index++;
 
-    $output .= ">$new_protein_ID\n$sequence\n";
-    $output_tab .= "\"$new_protein_ID\"\t\"$ID\"\t\"$sequence\"\n";
-    $output_splitted .= splitProtein($new_protein_ID, $sequence, $sequence_length, $sequence_overlap);
-    $output_aminoacid .= splitProteinByAminoacid($new_protein_ID, $sequence);
+        $output .= ">$new_protein_ID\n$sequence\n";
+        $output_tab .= "\"$new_protein_ID\"\t\"$ID\"\t\"$sequence\"\n";
+        $output_splitted .= splitProtein($new_protein_ID, $sequence, $sequence_length, $sequence_overlap);
+        $output_aminoacid .= splitProteinByAminoacid($new_protein_ID, $sequence);
+    }   
 }
 
 open(OUTPUT, ">" . "$output_file") || die "Could not open output file\n";

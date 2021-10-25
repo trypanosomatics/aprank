@@ -9,7 +9,7 @@ AUTHORS
     Based on Pepranker v4.0 by Mauricio Brunner, Diego Ramoa, Santiago Carmona and Fernán Agüero
 
 DEPENDENCES
-    Needs Perl (Config::General, Bio::SeqIO::fasta), R (data.table, foreach, parallel, doParallel), BepiPred 1.0, Iupred 1.0, 
+    Needs Perl (Config::General, Bio::SeqIO::fasta, Parallel::ForkManager), R (data.table, pROC, ggplot2), BepiPred 1.0, Iupred 1.0, 
     netMHCIIpan 2.0, NetOGlyc 3.1d, NetSurfp 1.0, Paircoil2, PredGPI 1.4.3, SignalP 4.0, TMHMM 2.0c and Xstream 1.71
 
 RUNNING APRANK VIA R
@@ -35,6 +35,7 @@ PERL COMMAND LINE PARAMETERS
         [-cem Coendemicity_max_matches_allowed] [-cep Coendemicity_penalty_per_match] [-mhcl NetMHCIIpan_binding_peptide_length]
         [-mhca NetMHCIIpan_alleles] [-p2l Paircoil2_fragment_length] [-p2t Paircoil2_threshold]
         [-spg SignalP_organism_group] [-xsmp Xstream_min_period] [-xsmc Xstream_min_copy_number] [-xsme Xstream_max_consensus_error]
+        [-res temp_subfolder_for_resume]
 
     It's recomended to change the arguments from "Perl Pipeline Config.txt"
 
@@ -90,8 +91,16 @@ PERL COMMAND LINE PARAMETERS
     [-xsmc Xstream_min_copy_number]            => The minimum copy number that a tandem repeat has to have to be recorded when using Xstream.
     [-xsme Xstream_max_consensus_error]        => The maximum consensus error that a tandem repeat has to have to be recorded when using 
                                                   Xstream.
+    [-res temp_subfolder_for_resume]           => Used only when trying to resume a halted run. The path to the specific temp folder 
+                                                  inside /tmp (the name should be similar to FASTAname-date-hour).
+
+RESUMING A HALTED RUN
+
+  If for some reason the run was halted, you can resume it by using the -res command. For this to work you have to pass the program the
+  full path to the temp folder, which by default is found inside the /tmp folder and has a name such as "FASTAname_YYYYMMDD-hhmmss".
+
 READING THE OUTPUTS
-    By default, APRANK will save the outputs in the /outputs folder, inside a new folder with the FastaName_Date format.
+	By default, APRANK will save the outputs in the /outputs folder, inside a new folder with the FastaName_Date format.
 
 	APRANK will produce two set of scores, one for the proteins and one for the peptides. All scores go from 0 (predicted to be non-antigenic) to 
 	1 (predicted to be antigenic).
@@ -116,31 +125,3 @@ READING THE OUTPUTS
 	Also, if calculating the Coendemicity, an extra set of scores will appear with a _wCoendemicPenalty suffix in the name.
 
 	APRANK will also save the processed data from the predictors inside the /predictors_outputs folder just in case you need it.
-
-SPEEDING UP APRANK
-    APRANK can take a long time to run, especially if you are analyzing a large amount of proteins. As a quick example, 
-    APRANK took 20 minutes to analyze 10 proteins using 1 core and it took close to 20 hours to analyze 5,000 proteins using 12 cores. 
-    However, there are a few things you can do to speed things up:
-
-    Remove redundant proteins
-        Make sure your proteome doesn't have the exact same sequence more than once under different IDs. If so, try to remove the redundant
-        proteins before running APRANK keeping only one ID per sequence. Once APRANK is done you can assign to the removed IDs the same score
-        as the one from the protein that was analyzed with that same sequence.
-
-    Divide the proteome in several pieces
-        While this doesn't actually speed up the process, by dividing a really large proteome in smaller pieces you can run each of those pieces 
-        at different times, making it more manageable. Not only you will getting some results in the meantime, but this also deals better with 
-        any computer issues that might occur. Keep in mind however that the predictor SelfSimilarity, if used, will only compare against the 
-        proteins in that same piece, and not the whole proteome.
-
-    Use parallel processing
-        APRANK supports using many cores in the predictors that take the longest to run. You can do this by changing the variable 
-        number_of_parallel_processes in either the "R_Pipeline.R" or "Perl Pipeline Config.txt". If using a cluster with many cores, 
-        we recommend leaving a few cores unused because it seems to help with the stability of some of the predictors.
-
-    Remove predictors (most likely NetSurfp)
-        90% to 95% of APRANK's running time is spent in calculating the outputs of the predictors for each protein in the proteome. For this reason, 
-        removing some predictors can speed up greatly APRANK's running time, at the cost of a possible loss in prediction accuracy. Keep in mind 
-        however that when a predictor is removed APRANK's models are recalculated, making it so as long as you just remove one or two predictors 
-        the difference in accuracy isn't that large. The main candidate to be removed to speed things up is NetSurfp, which takes around 50% to 75% 
-        of the running time of APRANK.

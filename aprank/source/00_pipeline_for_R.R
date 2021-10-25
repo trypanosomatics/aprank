@@ -33,89 +33,6 @@ if (!require(data.table, quietly = TRUE)) {
     library(data.table)
 }
 
-###########################-
-#### **AUX FUNCTIONS** ####
-###########################-
-makeVariableSummary <-
-    function(aprank_folder,
-             use_BepiPred, use_IsoelectricPoint, use_Iupred, use_MolecularWeight,
-             use_NetMHCIIpan, use_NetOglyc, use_NetSurfp, use_Paircoil2,
-             use_PredGPI, use_SignalP, use_TMHMM, use_Xstream,
-             use_SelfSimilarity, use_CrossReactivity, use_Coendemicity,
-             output_data_folder, input_fasta_file, CrossReactivity_fasta_file, Coendemicity_fasta_file,
-             number_of_parallel_processes,
-             peptide_length, peptide_overlap, KmerSimilarity_kmer_length,
-             SignalP_organism_group,
-             NetMHCIIpan_binding_peptide_length, NetMHCIIPan_alleles,
-             Paircoil2_fragment_length, Paircoil2_threshold,
-             Xstream_min_period, Xstream_min_copy_number, Xstream_max_consensus_error,
-             Coendemicity_protein_min_amount_in_coendemic_proteome_for_penalty, Coendemicity_protein_start_penalty_proportion, Coendemicity_protein_max_penalty_proportion,
-             Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty, Coendemicity_peptide_start_penalty_proportion, Coendemicity_peptide_max_penalty_proportion) {
-        output <- c()
-        
-        output <- c(output, sprintf("%s: %s", "APRANK folder", aprank_folder))
-        
-        output <- c(output, "\n")
-        
-        output <- c(output, sprintf("%s: %s", "Input FASTA file", input_fasta_file))
-        output <- c(output, sprintf("%s: %s", "CrossReactivity FASTA file", CrossReactivity_fasta_file))
-        output <- c(output, sprintf("%s: %s", "Coendemicity FASTA file", Coendemicity_fasta_file))
-        output <- c(output, sprintf("%s: %s", "Output folder", output_data_folder))
-        
-        output <- c(output, "\n")
-        
-        output <- c(output, sprintf("%s: %s", "Number of parallel processes", number_of_parallel_processes))
-        
-        output <- c(output, "\n")
-        
-        output <- c(output, sprintf("%s: %s", "Use BepiPred", use_BepiPred))
-        output <- c(output, sprintf("%s: %s", "Use IsoelectricPoint", use_IsoelectricPoint))
-        output <- c(output, sprintf("%s: %s", "Use Iupred", use_Iupred))
-        output <- c(output, sprintf("%s: %s", "Use MolecularWeight", use_MolecularWeight))
-        output <- c(output, sprintf("%s: %s", "Use NetMHCIIpan", use_NetMHCIIpan))
-        output <- c(output, sprintf("%s: %s", "Use NetOglyc", use_NetOglyc))
-        output <- c(output, sprintf("%s: %s", "Use NetSurfp", use_NetSurfp))
-        output <- c(output, sprintf("%s: %s", "Use Paircoil2", use_Paircoil2))
-        output <- c(output, sprintf("%s: %s", "Use PredGPI", use_PredGPI))
-        output <- c(output, sprintf("%s: %s", "Use SignalP", use_SignalP))
-        output <- c(output, sprintf("%s: %s", "Use TMHMM", use_TMHMM))
-        output <- c(output, sprintf("%s: %s", "Use Xstream", use_Xstream))
-        output <- c(output, sprintf("%s: %s", "Use SelfSimilarity", use_SelfSimilarity))
-        output <- c(output, sprintf("%s: %s", "Use CrossReactivity", use_CrossReactivity))
-        output <- c(output, sprintf("%s: %s", "Use Coendemicity", use_Coendemicity))
-        
-        output <- c(output, "\n")
-        
-        output <- c(output, sprintf("%s: %s", "Peptide Length", peptide_length))
-        output <- c(output, sprintf("%s: %s", "Peptide Overlap", peptide_overlap))
-        output <- c(output, sprintf("%s: %s", "Kmer Length (for similarity)", KmerSimilarity_kmer_length))
-        
-        output <- c(output, "\n")
-        
-        output <- c(output, sprintf("%s: %s", "SignalP - Organism Group", SignalP_organism_group))
-        output <- c(output, sprintf("%s: %s", "NetMHCIIpan - Binding Peptide Length", NetMHCIIpan_binding_peptide_length))
-        output <- c(output, sprintf("%s: %s", "NetMHCIIpan - Alleles", paste(NetMHCIIPan_alleles, collapse = ", ")))
-        output <- c(output, sprintf("%s: %s", "Paircoil2 - Fragment Length", Paircoil2_fragment_length))
-        output <- c(output, sprintf("%s: %s", "Paircoil2 - Threshold", Paircoil2_threshold))
-        output <- c(output, sprintf("%s: %s", "Xstream - Min Period", Xstream_min_period))
-        output <- c(output, sprintf("%s: %s", "Xstream - Min Copy Number", Xstream_min_copy_number))
-        output <- c(output, sprintf("%s: %s", "Xstream - Max Consensus Error", Xstream_max_consensus_error))
-        
-        output <- c(output, "\n")
-        
-        output <- c(output, sprintf("%s: %s", "Coendemicity - Protein - Min amount in Coendemic Proteome for penalty", Coendemicity_protein_min_amount_in_coendemic_proteome_for_penalty))
-        output <- c(output, sprintf("%s: %s", "Coendemicity - Protein - Proportion to start applying penalty", Coendemicity_protein_start_penalty_proportion))
-        output <- c(output, sprintf("%s: %s", "Coendemicity - Protein - Proportion for max penalty", Coendemicity_protein_max_penalty_proportion))
-        
-        output <- c(output, sprintf("%s: %s", "Coendemicity - Peptide - Min amount in Coendemic Proteome for penalty", Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty))
-        output <- c(output, sprintf("%s: %s", "Coendemicity - Peptide - Proportion to start applying penalty", Coendemicity_peptide_start_penalty_proportion))
-        output <- c(output, sprintf("%s: %s", "Coendemicity - Peptide - Proportion for max penalty", Coendemicity_peptide_max_penalty_proportion))
-        
-        output_string <- paste(output, collapse = "\n")
-        
-        output_string
-    }
-
 ##################-
 #### **MAIN** ####
 ##################-
@@ -129,11 +46,12 @@ runPipeline <-
              number_of_parallel_processes,
              peptide_length, peptide_overlap, KmerSimilarity_kmer_length,
              SignalP_organism_group,
-             NetMHCIIpan_binding_peptide_length, NetMHCIIPan_alleles,
+             NetMHCIIpan_binding_peptide_length, NetMHCIIpan_alleles,
              Paircoil2_fragment_length, Paircoil2_threshold,
              Xstream_min_period, Xstream_min_copy_number, Xstream_max_consensus_error,
              Coendemicity_protein_min_amount_in_coendemic_proteome_for_penalty, Coendemicity_protein_start_penalty_proportion, Coendemicity_protein_max_penalty_proportion,
-             Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty, Coendemicity_peptide_start_penalty_proportion, Coendemicity_peptide_max_penalty_proportion) {
+             Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty, Coendemicity_peptide_start_penalty_proportion, Coendemicity_peptide_max_penalty_proportion,
+             resume_temp_folder = "") {
         #############################################-
         #### **INTERNAL CONFIG (BE CAREFUL WHEN EDITING THESE)** ####
         #############################################-
@@ -159,9 +77,20 @@ runPipeline <-
         aux_name <- gsub("[^a-zA-z0-9 \\.]", "", aux_name)
         aux_name <- sprintf("%s_%s", aux_name, format(Sys.time(), "%Y%m%d-%H%M%S"))
         
-        temp_data_folder <- sprintf("%s/%s", temp_data_folder, aux_name)
-        output_data_folder <- sprintf("%s/%s", output_data_folder, aux_name)
-        predictors_outputs_data_folder <- sprintf("%s/predictors_outputs", output_data_folder)
+        if ((resume_temp_folder != "") & (dir.exists(resume_temp_folder))) {
+            aux_name <- basename(resume_temp_folder)
+            
+            temp_data_folder <- resume_temp_folder
+            output_data_folder <- sprintf("%s/%s", output_data_folder, aux_name)
+            predictors_outputs_data_folder <- sprintf("%s/predictors_outputs", output_data_folder)
+        } else {
+            temp_data_folder <- sprintf("%s/%s", temp_data_folder, aux_name)
+            dir.create(temp_data_folder)
+            output_data_folder <- sprintf("%s/%s", output_data_folder, aux_name)
+            dir.create(output_data_folder)
+            predictors_outputs_data_folder <- sprintf("%s/predictors_outputs", output_data_folder)
+            dir.create(predictors_outputs_data_folder)
+        }
         
         #Set the rest
         max_protein_length <- 9999
@@ -398,31 +327,6 @@ runPipeline <-
         ##################-
         #### **MAIN** ####
         ##################-
-        ############################-
-        #### Create the folders ####
-        ############################-
-        dir.create(temp_data_folder)
-        dir.create(output_data_folder)
-        dir.create(predictors_outputs_data_folder)
-        
-        #Add the variable summary
-        variable_summary <- makeVariableSummary(aprank_folder,
-                                                use_BepiPred, use_IsoelectricPoint, use_Iupred, use_MolecularWeight,
-                                                use_NetMHCIIpan, use_NetOglyc, use_NetSurfp, use_Paircoil2,
-                                                use_PredGPI, use_SignalP, use_TMHMM, use_Xstream,
-                                                use_SelfSimilarity, use_CrossReactivity, use_Coendemicity,
-                                                output_data_folder, input_fasta_file, CrossReactivity_fasta_file, Coendemicity_fasta_file,
-                                                number_of_parallel_processes,
-                                                peptide_length, peptide_overlap, KmerSimilarity_kmer_length,
-                                                SignalP_organism_group,
-                                                NetMHCIIpan_binding_peptide_length, NetMHCIIPan_alleles,
-                                                Paircoil2_fragment_length, Paircoil2_threshold,
-                                                Xstream_min_period, Xstream_min_copy_number, Xstream_max_consensus_error,
-                                                Coendemicity_protein_min_amount_in_coendemic_proteome_for_penalty, Coendemicity_protein_start_penalty_proportion, Coendemicity_protein_max_penalty_proportion,
-                                                Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty, Coendemicity_peptide_start_penalty_proportion, Coendemicity_peptide_max_penalty_proportion)
-        variable_summary_file <- sprintf("%s/variable_summary.txt", output_data_folder)
-        write(variable_summary, file = variable_summary_file)
-        
         ########################-
         #### Run Predictors ####
         ########################-
@@ -438,14 +342,14 @@ runPipeline <-
                           peptide_length = peptide_length, peptide_overlap = peptide_overlap,
                           SignalP_organism_group = SignalP_organism_group,
                           Xstream_path = Xstream_path,
-                          NetMHCIIpan_binding_peptide_length = NetMHCIIpan_binding_peptide_length, NetMHCIIPan_alleles = NetMHCIIPan_alleles,
+                          NetMHCIIpan_binding_peptide_length = NetMHCIIpan_binding_peptide_length, NetMHCIIpan_alleles = NetMHCIIpan_alleles,
                           KmerSimilarity_kmer_length = KmerSimilarity_kmer_length, CrossReactivity_fasta_file = CrossReactivity_fasta_file, Coendemicity_fasta_file = Coendemicity_fasta_file,
                           use_BepiPred = use_BepiPred, use_Paircoil2 = use_Paircoil2, use_PredGPI = use_PredGPI, use_SignalP = use_SignalP,
                           use_TMHMM = use_TMHMM, use_NetSurfp = use_NetSurfp,
                           use_Iupred = use_Iupred, use_NetOglyc = use_NetOglyc, use_Xstream = use_Xstream, use_NetMHCIIpan = use_NetMHCIIpan,
                           use_IsoelectricPoint = use_IsoelectricPoint, use_MolecularWeight = use_MolecularWeight,
                           use_SelfSimilarity = use_SelfSimilarity, use_CrossReactivity = use_CrossReactivity, use_Coendemicity = use_Coendemicity)
-        
+
         output_per_aminoacid <- list_output[["output_per_aminoacid"]]
         output_per_protein <- list_output[["output_per_protein"]]
         output_per_kmer <- list_output[["output_per_kmer"]]
@@ -454,7 +358,7 @@ runPipeline <-
         rm(list_output)
         gc()
         })
-        
+
         ################################-
         #### Normalize Protein Data ####
         ################################-
@@ -471,11 +375,11 @@ runPipeline <-
                                  use_Iupred = use_Iupred, use_NetOglyc = use_NetOglyc, use_Xstream = use_Xstream, use_NetMHCIIpan = use_NetMHCIIpan,
                                  use_IsoelectricPoint = use_IsoelectricPoint, use_MolecularWeight = use_MolecularWeight,
                                  use_SelfSimilarity = use_SelfSimilarity, use_CrossReactivity = use_CrossReactivity, use_Coendemicity = use_Coendemicity)
-        
+
         normalized_output_per_protein <- list_output[["normalized_output_per_protein"]]
         rm(list_output)
         gc()
-        
+
         ################################-
         #### Normalize Peptide Data ####
         ################################-
@@ -492,16 +396,16 @@ runPipeline <-
                                  use_Iupred = use_Iupred, use_NetOglyc = use_NetOglyc, use_Xstream = use_Xstream, use_NetMHCIIpan = use_NetMHCIIpan,
                                  use_IsoelectricPoint = use_IsoelectricPoint, use_MolecularWeight = use_MolecularWeight,
                                  use_SelfSimilarity = use_SelfSimilarity, use_CrossReactivity = use_CrossReactivity)
-        
+
         normalized_output_per_peptide <- list_output[["normalized_output_per_peptide"]]
         rm(list_output)
         gc()
-        
+
         ##################################-
         #### Calculate Protein Scores ####
         ##################################-
         load(protein_model_file) # > protein_balanced_generic_model
-        
+
         output_method <- protein_scores_output_method
         list_output <-
             calculateProteinScores(normalized_output_per_protein = normalized_output_per_protein,
@@ -512,16 +416,16 @@ runPipeline <-
                                    use_Iupred = use_Iupred, use_NetOglyc =  use_NetOglyc, use_Xstream =  use_Xstream, use_NetMHCIIpan =  use_NetMHCIIpan,
                                    use_IsoelectricPoint = use_IsoelectricPoint, use_MolecularWeight =  use_MolecularWeight,
                                    use_SelfSimilarity = use_SelfSimilarity, use_CrossReactivity = use_CrossReactivity, use_Coendemicity = use_Coendemicity)
-        
+
         score_output_per_protein <- list_output[["score_output_per_protein"]]
         rm(list_output)
         gc()
-        
+
         ##################################-
         #### Calculate Peptide Scores ####
         ##################################-
         load(peptide_model_file) # > peptide_balanced_generic_model
-        
+
         output_method <- peptide_scores_output_method
         list_output <-
             calculatePeptideScores(normalized_output_per_peptide = normalized_output_per_peptide,
@@ -532,17 +436,17 @@ runPipeline <-
                                    use_TMHMM = use_TMHMM, use_NetSurfp =  use_NetSurfp,
                                    use_Iupred = use_Iupred, use_NetOglyc =  use_NetOglyc, use_Xstream =  use_Xstream, use_NetMHCIIpan =  use_NetMHCIIpan,
                                    use_SelfSimilarity = use_SelfSimilarity, use_CrossReactivity = use_CrossReactivity, use_Coendemicity = use_Coendemicity)
-        
+
         score_output_per_peptide <- list_output[["score_output_per_peptide"]]
         rm(list_output)
         gc()
-        
+
         writeLines(sprintf("APRANK has finished successfully! Output can be found in %s", output_data_folder))
-        
+
         #####################-
         #### Remove Temp ####
         #####################-
-        if (remove_temp_folder) {
-            unlink(temp_data_folder, recursive = T)
+        if ((remove_temp_folder) & (file.exists(score_output_per_protein_file))) {
+            unlink(temp_data_folder, recursive = T)   
         }
     }

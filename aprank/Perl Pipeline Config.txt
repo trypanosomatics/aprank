@@ -31,6 +31,9 @@ output_folder =
 # The amount of parallel processes to run (has to be below or equal the amount of processors in your PC).
 number_of_parallel_processes = 1
 
+# Used only when trying to resume a halted run. The path to the specific temp folder inside /tmp (the name should be similar to FASTAname-date-hour)
+temp_subfolder_for_resume = 
+
 ########################
 ### Predictors
 ########################

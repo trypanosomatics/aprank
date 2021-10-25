@@ -20,6 +20,7 @@ USAGE
         [-cepepa Coendemicity_peptide_min_kmer_amount_for_penalty]
         [-cepepsp Coendemicity_peptide_start_penalty_proportion]
         [-cepepmp Coendemicity_peptide_max_penalty_proportion]
+		[-res temp_subfolder_for_resume]
 
 It's recomended to change the arguments from \"Perl Pipeline Config.txt\"
 
@@ -170,3 +171,7 @@ Coendemicity_peptide_start_penalty_proportion
 Coendemicity_peptide_max_penalty_proportion
     The proportion of coendemic kmers a peptide has to have to apply the 
     maximum penalty to it.
+
+temp_subfolder_for_resume
+	Used only when trying to resume a halted run. The path to the specific temp 
+	subfolder inside /tmp (the name should be similar to FASTAname-date-hour)

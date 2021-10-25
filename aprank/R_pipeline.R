@@ -1,5 +1,5 @@
 # APRANK v1.0 by Alejandro Ricci
-# Based on Pepranker v4.0 by Mauricio Brunner, Diego Ramoa, Santiago Carmona and Fernán Agüero
+# Based on Pepranker v4.0 by Mauricio Brunner, Diego Ramoa, Santiago Carmona and Fern?n Ag?ero
 
 # Needs Perl (Config::General, Bio::SeqIO::fasta),
 # R (data.table, foreach, parallel, doParallel),
@@ -9,7 +9,7 @@
 
 # BSD 2-Clause License
 # 
-# Copyright (c) 2021, Alejandro Ricci (aricci@iib.unsam.edu.ar), Fernán Agüero (fernan@iib.unsam.edu.ar)
+# Copyright (c) 2021, Alejandro Ricci (aricci@iib.unsam.edu.ar), Fern?n Ag?ero (fernan@iib.unsam.edu.ar)
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -78,6 +78,8 @@ output_data_folder <- sprintf("%s/output", aprank_folder)
 
 peptide_length <- 15
 peptide_overlap <- 14
+
+resume_temp_folder <- ""
 
 #################################-
 #### Config - Run Predictors ####
@@ -156,4 +158,5 @@ runPipeline(aprank_folder = aprank_folder,
             Paircoil2_fragment_length = Paircoil2_fragment_length, Paircoil2_threshold = Paircoil2_threshold,
             Xstream_min_period = Xstream_min_period, Xstream_min_copy_number = Xstream_min_copy_number, Xstream_max_consensus_error = Xstream_max_consensus_error,
             Coendemicity_protein_min_amount_in_coendemic_proteome_for_penalty = Coendemicity_protein_min_amount_in_coendemic_proteome_for_penalty, Coendemicity_protein_start_penalty_proportion = Coendemicity_protein_start_penalty_proportion, Coendemicity_protein_max_penalty_proportion = Coendemicity_protein_max_penalty_proportion,
-            Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty = Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty, Coendemicity_peptide_start_penalty_proportion = Coendemicity_peptide_start_penalty_proportion, Coendemicity_peptide_max_penalty_proportion)
+            Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty = Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty, Coendemicity_peptide_start_penalty_proportion = Coendemicity_peptide_start_penalty_proportion, Coendemicity_peptide_max_penalty_proportion,
+            resume_temp_folder = resume_temp_folder)

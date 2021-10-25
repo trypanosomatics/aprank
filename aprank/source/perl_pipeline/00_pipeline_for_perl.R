@@ -1,6 +1,6 @@
 # BSD 2-Clause License
 # 
-# Copyright (c) 2021, Alejandro Ricci (aricci@iib.unsam.edu.ar), Fernán Agüero (fernan@iib.unsam.edu.ar)
+# Copyright (c) 2021, Alejandro Ricci (aricci@iib.unsam.edu.ar), Fern?n Ag?ero (fernan@iib.unsam.edu.ar)
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -38,11 +38,12 @@ args_names <- c("aprank_folder",
                 "number_of_parallel_processes",
                 "peptide_length", "peptide_overlap", "KmerSimilarity_kmer_length",
                 "SignalP_organism_group",
-                "NetMHCIIpan_binding_peptide_length", "NetMHCIIPan_alleles",
+                "NetMHCIIpan_binding_peptide_length", "NetMHCIIpan_alleles",
                 "Paircoil2_fragment_length", "Paircoil2_threshold",
                 "Xstream_min_period", "Xstream_min_copy_number", "Xstream_max_consensus_error",
                 "Coendemicity_protein_min_amount_in_coendemic_proteome_for_penalty", "Coendemicity_protein_start_penalty_proportion", "Coendemicity_protein_max_penalty_proportion",
-                "Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty", "Coendemicity_peptide_start_penalty_proportion", "Coendemicity_peptide_max_penalty_proportion")
+                "Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty", "Coendemicity_peptide_start_penalty_proportion", "Coendemicity_peptide_max_penalty_proportion",
+                "resume_temp_folder")
 
 integer_args_names <- c("use_BepiPred", "use_IsoelectricPoint", "use_Iupred", "use_MolecularWeight",
                         "use_NetMHCIIpan", "use_NetOglyc", "use_NetSurfp", "use_Paircoil2",
@@ -80,7 +81,7 @@ for (i in 1:length(args_names)) {
 ###############################-
 #### **PROCESS ARGUMENTS** ####
 ###############################-
-args_values[["NetMHCIIPan_alleles"]] <- unlist(strsplit(args_values[["NetMHCIIPan_alleles"]], " "))
+args_values[["NetMHCIIpan_alleles"]] <- unlist(strsplit(args_values[["NetMHCIIpan_alleles"]], " "))
 
 ##########################-
 #### **RUN PIPELINE** ####
@@ -96,8 +97,9 @@ runPipeline(aprank_folder = args_values[["aprank_folder"]],
             number_of_parallel_processes = args_values[["number_of_parallel_processes"]],
             peptide_length = args_values[["peptide_length"]], peptide_overlap = args_values[["peptide_overlap"]], KmerSimilarity_kmer_length = args_values[["KmerSimilarity_kmer_length"]],
             SignalP_organism_group = args_values[["SignalP_organism_group"]],
-            NetMHCIIpan_binding_peptide_length = args_values[["NetMHCIIpan_binding_peptide_length"]], NetMHCIIPan_alleles = args_values[["NetMHCIIPan_alleles"]],
+            NetMHCIIpan_binding_peptide_length = args_values[["NetMHCIIpan_binding_peptide_length"]], NetMHCIIpan_alleles = args_values[["NetMHCIIpan_alleles"]],
             Paircoil2_fragment_length = args_values[["Paircoil2_fragment_length"]], Paircoil2_threshold = args_values[["Paircoil2_threshold"]],
             Xstream_min_period = args_values[["Xstream_min_period"]], Xstream_min_copy_number = args_values[["Xstream_min_copy_number"]], Xstream_max_consensus_error = args_values[["Xstream_max_consensus_error"]],
             Coendemicity_protein_min_amount_in_coendemic_proteome_for_penalty = args_values[["Coendemicity_protein_min_amount_in_coendemic_proteome_for_penalty"]], Coendemicity_protein_start_penalty_proportion = args_values[["Coendemicity_protein_start_penalty_proportion"]], Coendemicity_protein_max_penalty_proportion = args_values[["Coendemicity_protein_max_penalty_proportion"]],
-            Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty = args_values[["Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty"]], Coendemicity_peptide_start_penalty_proportion = args_values[["Coendemicity_peptide_start_penalty_proportion"]], Coendemicity_peptide_max_penalty_proportion = args_values[["Coendemicity_peptide_max_penalty_proportion"]])
+            Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty = args_values[["Coendemicity_peptide_min_amount_in_coendemic_proteome_for_penalty"]], Coendemicity_peptide_start_penalty_proportion = args_values[["Coendemicity_peptide_start_penalty_proportion"]], Coendemicity_peptide_max_penalty_proportion = args_values[["Coendemicity_peptide_max_penalty_proportion"]],
+            resume_temp_folder = args_values[["resume_temp_folder"]])

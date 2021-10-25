@@ -60,6 +60,7 @@ USAGE
         [-cepepa Coendemicity_peptide_min_kmer_amount_for_penalty]
         [-cepepsp Coendemicity_peptide_start_penalty_proportion]
         [-cepepmp Coendemicity_peptide_max_penalty_proportion]
+        [-res temp_subfolder_for_resume]
 
 
 =head1
@@ -173,6 +174,8 @@ my $Coendemicity_protein_max_penalty_proportion      = readArgumentOrConfig(\@AR
 my $Coendemicity_peptide_min_kmer_amount_for_penalty = readArgumentOrConfig(\@ARGV, "Coendemicity - Peptide - Min Amount in Coendemic Proteome for Penalty", "cepepa" , "i" , \%config, "Coendemicity_peptide_min_kmer_amount_for_penalty");
 my $Coendemicity_peptide_start_penalty_proportion    = readArgumentOrConfig(\@ARGV, "Coendemicity - Peptide - Start Penalty Proportion"                    , "cepepsp", "f" , \%config, "Coendemicity_peptide_start_penalty_proportion"   );
 my $Coendemicity_peptide_max_penalty_proportion      = readArgumentOrConfig(\@ARGV, "Coendemicity - Peptide - Max Penalty Proportion"                      , "cepepmp", "f" , \%config, "Coendemicity_peptide_max_penalty_proportion"     );
+#Resume
+my $temp_subfolder_for_resume                        = readArgumentOrConfig(\@ARGV, "Temp Subfolder for Resume"                                            , "res"    , "s" , \%config, "temp_subfolder_for_resume"                       );
 
 #Flags
 if ($help) {
@@ -205,4 +208,5 @@ system("Rscript --vanilla " . $internal_config{"LIB_LOCATION"} . "/00_pipeline_f
     " " . $Paircoil2_fragment_length . " " . $Paircoil2_threshold .
     " " . $Xstream_min_period . " " . $Xstream_min_copy_number . " " . $Xstream_max_consensus_error .
     " " . $Coendemicity_protein_min_kmer_amount_for_penalty . " " . $Coendemicity_protein_start_penalty_proportion . " " . $Coendemicity_protein_max_penalty_proportion .
-    " " . $Coendemicity_peptide_min_kmer_amount_for_penalty . " " . $Coendemicity_peptide_start_penalty_proportion . " " . $Coendemicity_peptide_max_penalty_proportion);
+    " " . $Coendemicity_peptide_min_kmer_amount_for_penalty . " " . $Coendemicity_peptide_start_penalty_proportion . " " . $Coendemicity_peptide_max_penalty_proportion .
+    " $q" . $temp_subfolder_for_resume . "$q");

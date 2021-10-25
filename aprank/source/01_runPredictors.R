@@ -83,6 +83,7 @@ runAndParse_IP_MW <- function(input_fasta_files,
     registerDoParallel(numCores)  #use multicore, set to the number of our cores
     
     full_PW_MW_parsed_data <- foreach (i = 1:number_of_parallel_processes, .combine = rbind) %dopar% {
+        # i <- 1
         IP_MW_output_file <- sprintf("%s/IP_MW_output_file_%s", temp_data_folder, i)
         
         command_aux <- sprintf("pepstats -sequence '%s' -sprotein1 -aadata Eamino.dat -mwdata Emolwt.dat -termini -nomono -auto -outfile '%s'",
@@ -97,7 +98,7 @@ runAndParse_IP_MW <- function(input_fasta_files,
         con <- file(IP_MW_output_file, "r")
         while(TRUE) {
             line = readLines(con, 1)
-            
+
             if (length(line) == 0) {
                 break #to exit the loop
             } else if (grepl("PEPSTATS of", line)) {
@@ -108,7 +109,7 @@ runAndParse_IP_MW <- function(input_fasta_files,
                 molecular_weight <- gsub("^.*Molecular weight\\s+=\\s+(\\S+)\\s+Residues.*$", "\\1", line)
                 molecular_weight <- as.numeric(molecular_weight)
                 molecular_weights <- c(molecular_weights, molecular_weight)
-            } else if (grepl("Charge", line)) {
+            } else if (grepl("Average Residue Weight.*Charge", line)) {
                 charge <- gsub("^.*Average Residue Weight.*Charge\\s+=\\s+(\\S+)\\s*$", "\\1", line)
                 charge <- as.numeric(charge)
             } else if (grepl("Isoelectric Point", line)) {
@@ -169,49 +170,6 @@ runAndParse_NetSurfp <- function(input_singleProteinFasta_file) {
                                                      probability_for_beta_strand = prob_of_beta_strand)]
     
     NetSurfp_parsed_data
-}
-
-runAndParse_NetSurfp_Parallel <- function(input_fasta_files,
-                                 number_of_parallel_processes) {
-    #NetSurfp already has parallelization, so it's convenient to use less parallel processes, such as
-    #leaving 4 cores free per process
-    numCores <- detectCores() #set the cores
-    
-    registerDoParallel(numCores)  #use multicore, set to the number of our cores
-    
-    full_NetSurfp_parsed_data <- foreach (i = 1:number_of_parallel_processes, .combine = rbind) %dopar% {
-        #This can give core dumped errors, but I think NetSurfp just do those again because the outputs are full
-        command_aux <- sprintf("netsurfp -i '%s' -a",
-                               input_fasta_files[i])
-        NetSurfp_output <- system(command_aux, intern = T)
-        
-        #There is a problem with strange AA such as X where it doesn't give a class_asignment, meaning
-        #there is one less column, let's fix those cases
-        for (i in 1:length(NetSurfp_output)) {
-            # i <- 1
-            line <- NetSurfp_output[i]
-            
-            if ((line != "") & (!grepl("^#.*$", line))) {
-                if (grepl("^\\s+[^ACDEFGHIKLMNPQRSTVWY]\\s+.*$", line)) {
-                    line <- sprintf("X %s", gsub("^\\s+(\\S.*)$", "\\1", line))
-                    NetSurfp_output[i] <- line
-                }
-            }
-        }
-        
-        NetSurfp_parsed_data <- read.delim(text = NetSurfp_output, header = F, sep = "", na.strings = NULL, comment.char = "#")
-        colnames(NetSurfp_parsed_data) <- c("class_asignment", "aa", "id", "pos", "RSA", "ASA", "Z_fit_score", "prob_of_alpha_helix", "prob_of_beta_strand", "prob_of_coil")
-        NetSurfp_parsed_data <- as.data.table(NetSurfp_parsed_data)
-        NetSurfp_parsed_data <- NetSurfp_parsed_data[, .(id, pos, relative_surface_accessibility = RSA,
-                                                         probability_for_alpha_helix = prob_of_alpha_helix,
-                                                         probability_for_beta_strand = prob_of_beta_strand)]
-        
-        NetSurfp_parsed_data
-    }
-    #End the parallel processing
-    stopImplicitCluster()
-    
-    full_NetSurfp_parsed_data
 }
 
 runAndParse_Paircoil2 <- function(input_fasta_files,
@@ -539,19 +497,20 @@ runAndParse_Iupred <- function(input_singleProteinFasta_file,
     Iupred_parsed_data
 }
 
-runAndParse_NetMHCIIPan <- function(input_singleProteinFasta_file,
-                                    NetMHCIIPan_alleles,
-                                    NetMHCIIpan_binding_peptide_length) {
+runAndParse_NetMHCIIpan <- function(input_singleProteinFasta_file,
+                                    NetMHCIIpan_alleles,
+                                    NetMHCIIpan_binding_peptide_length,
+                                    list_output_suffix = "") {
     #Run the program for each allele and merge the data in one file
-    for (allele_for in NetMHCIIPan_alleles) {
-        # allele_for <- NetMHCIIPan_alleles[1]
+    for (allele_for in NetMHCIIpan_alleles) {
+        # allele_for <- NetMHCIIpan_alleles[1]
         command_aux <- sprintf("netMHCIIpan -a '%s' -f '%s' -l %s",
                                allele_for,
                                input_singleProteinFasta_file,
                                NetMHCIIpan_binding_peptide_length)
         NetMHCIIpan_output_aux <- system(command_aux, intern = T)
         
-        if (allele_for == NetMHCIIPan_alleles[1]) {
+        if (allele_for == NetMHCIIpan_alleles[1]) {
             NetMHCIIpan_output <- NetMHCIIpan_output_aux
         } else {
             NetMHCIIpan_output <- c(NetMHCIIpan_output, NetMHCIIpan_output_aux)
@@ -584,8 +543,8 @@ runAndParse_NetMHCIIPan <- function(input_singleProteinFasta_file,
     
     #Create the output
     list_output <- list()
-    list_output[["NetMHCIIpan_parsed_allele_data"]] <- NetMHCIIpan_parsed_allele_data
-    list_output[["NetMHCIIpan_parsed_peptide_data"]] <- NetMHCIIpan_parsed_peptide_data
+    list_output[[sprintf("NetMHCIIpan_parsed_allele_data%s", list_output_suffix)]] <- NetMHCIIpan_parsed_allele_data
+    list_output[[sprintf("NetMHCIIpan_parsed_peptide_data%s", list_output_suffix)]] <- NetMHCIIpan_parsed_peptide_data
     
     list_output
 }
@@ -641,17 +600,17 @@ runAndParse_NetOglyc <- function(input_singleProteinFasta_file,
 
 runAndParse_Xstream <- function(input_singleProteinFasta_file,
                                 protein,
-                                temp_data_folder,
+                                Xstream_temp_folder,
                                 Xstream_path) {
     #I can't change the name of the output, but I can change it's location
-    Xstream_output_file <- sprintf("%s/\\XSTREAM__i0.7_g3_m5_e2.0_out_2.html", temp_data_folder)
+    Xstream_output_file <- sprintf("%s/\\XSTREAM__i0.7_g3_m5_e2.0_out_2.html", Xstream_temp_folder)
     
     #I don't care about the log, but otherwise it's shown on console
     command_aux <- sprintf("java -jar '%s' '%s' -d'%s/' >'%s/xstream.log'",
                            Xstream_path,
                            input_singleProteinFasta_file,
-                           temp_data_folder,
-                           temp_data_folder)
+                           Xstream_temp_folder,
+                           Xstream_temp_folder)
     system(command_aux)
     
     #Extract important data
@@ -659,7 +618,7 @@ runAndParse_Xstream <- function(input_singleProteinFasta_file,
     con <- file(Xstream_output_file, "r")
     Xstream_data <- c()
     while(TRUE) {
-        line = readLines(con, 1)
+        line = suppressWarnings(readLines(con, 1)) #To hide the final line warning
         
         if (length(line) == 0) {
             break #to exit the loop
@@ -697,12 +656,18 @@ runAndParse_Xstream <- function(input_singleProteinFasta_file,
         }
     } else {
         #There are no repeats, return empty datatable
-        Xstream_parsed_data <- data.table(id = character(),
-                                          start = integer(),
-                                          end = integer(),
-                                          period = numeric(),
-                                          copy_number = numeric(),
-                                          consensus_error = numeric())
+        # Xstream_parsed_data <- data.table(id = character(),
+        #                                   start = integer(),
+        #                                   end = integer(),
+        #                                   period = numeric(),
+        #                                   copy_number = numeric(),
+        #                                   consensus_error = numeric())
+        Xstream_parsed_data <- data.table(id = protein,
+                                          start = 0,
+                                          end = 0,
+                                          period = 0,
+                                          copy_number = 0,
+                                          consensus_error = 0)
     }
     
     Xstream_parsed_data
@@ -719,7 +684,7 @@ runPredictors <- function(input_fasta_file,
                           peptide_length = 15, peptide_overlap = 14, max_protein_length = 9999, replace_nonAA_chars_by = "X",
                           SignalP_organism_group = "euk",
                           Xstream_path = "/usr/local/xstream/xstream.jar",
-                          NetMHCIIpan_binding_peptide_length = 9, NetMHCIIPan_alleles = c("DRB1_0101", "DRB3_0101", "DRB4_0101", "DRB5_0101"),
+                          NetMHCIIpan_binding_peptide_length = 9, NetMHCIIpan_alleles = c("DRB1_0101", "DRB3_0101", "DRB4_0101", "DRB5_0101"),
                           KmerSimilarity_kmer_length = 6, CrossReactivity_fasta_file = "", Coendemicity_fasta_file = "",
                           use_BepiPred = 1, use_Paircoil2 = 1, use_PredGPI = 1, use_SignalP = 1,
                           use_TMHMM = 1, use_NetSurfp = 1,
@@ -732,19 +697,23 @@ runPredictors <- function(input_fasta_file,
     #I limit the length of each protein to a number (9999 by default) and replace non aminoacid characters
     #to X to make it easier for the predictors (there are some that simply cant handle "strange" things or long
     #proteins)
-    command_aux <- sprintf("perl '%s/lib/tab_and_split_proteome.pl' '%s' %s %s %s '%s' '%s' '%s' '%s' '%s'",
-                           scripts_folder,
-                           input_fasta_file,
-                           peptide_length,
-                           peptide_overlap,
-                           max_protein_length,
-                           replace_nonAA_chars_by,
-                           temp_fasta_file,
-                           temp_tabbed_fasta_file,
-                           temp_splitted_fasta_file,
-                           temp_aminoacid_fasta_file)
-    system(command_aux)
-    
+    if (file.exists(temp_tabbed_fasta_file) == F) {
+        min_protein_length <- max(c(10, peptide_length))
+        
+        command_aux <- sprintf("perl '%s/lib/tab_and_split_proteome.pl' '%s' %s %s %s %s '%s' '%s' '%s' '%s' '%s'",
+                               scripts_folder,
+                               input_fasta_file,
+                               peptide_length,
+                               peptide_overlap,
+                               min_protein_length,
+                               max_protein_length,
+                               replace_nonAA_chars_by,
+                               temp_fasta_file,
+                               temp_tabbed_fasta_file,
+                               temp_splitted_fasta_file,
+                               temp_aminoacid_fasta_file)
+        system(command_aux)
+    }
     tabbed_fasta <- fread(temp_tabbed_fasta_file, header = T, sep = "\t", na.strings = NULL)
     tabbed_fasta[, sequence_length := nchar(sequence)]
     aminoacid_fasta <- fread(temp_aminoacid_fasta_file, header = T, sep = "\t", na.strings = NULL)
@@ -752,20 +721,18 @@ runPredictors <- function(input_fasta_file,
     ########################################-
     #### Set up the Parallel Processing ####
     ########################################-
-	#Check to not have more processes than proteins
-    unique_protein_amount <- tabbed_fasta[, .N]
-    if (number_of_parallel_processes > unique_protein_amount) {
-        number_of_parallel_processes <- unique_protein_amount
+    #Check if I have more processors than proteins
+    if (number_of_parallel_processes > tabbed_fasta[, .N]) {
+        number_of_parallel_processes <- tabbed_fasta[, .N]
     }
-    if (number_of_parallel_processes_for_NetSurfp > unique_protein_amount) {
-        number_of_parallel_processes_for_NetSurfp <- unique_protein_amount
-    }
-	
+    
     #Create the subFASTAs for parallel processing
     sub_temp_fastas_files <- c()
     tabbed_fasta$parallel_process_i <- 1
     if (number_of_parallel_processes > 1) {
         tabbed_fasta[, output_aux := sprintf(">%s\n%s", protein, sequence)]
+        
+        unique_protein_amount <- tabbed_fasta[, .N]
         
         division_aux <- unique_protein_amount %/% number_of_parallel_processes
         reminder_aux <- unique_protein_amount %% number_of_parallel_processes
@@ -777,10 +744,11 @@ runPredictors <- function(input_fasta_file,
             protein_subset_max_for_parallel <- protein_subset_min_for_parallel + protein_per_process_amount[i + 1] - 1
             tabbed_fasta[protein_subset_min_for_parallel:protein_subset_max_for_parallel]$parallel_process_i <- i
             
-            sub_fasta_output <- paste(tabbed_fasta[protein_subset_min_for_parallel:protein_subset_max_for_parallel]$output_aux, collapse = "\n")
             sub_temp_fasta_file <- sprintf("%s/sub_temp_%s.fasta", temp_data_folder, i)
-            
-            write(sub_fasta_output, file = sub_temp_fasta_file)
+            if (file.exists(sub_temp_fasta_file) == F) {
+                sub_fasta_output <- paste(tabbed_fasta[protein_subset_min_for_parallel:protein_subset_max_for_parallel]$output_aux, collapse = "\n")
+                write(sub_fasta_output, file = sub_temp_fasta_file)    
+            }
             
             sub_temp_fastas_files <- c(sub_temp_fastas_files, sub_temp_fasta_file)
         }
@@ -790,12 +758,9 @@ runPredictors <- function(input_fasta_file,
         sub_temp_fastas_files <- c(temp_fasta_file)
     }
     
-    #Create the subFASTAs for parallel processing NetSurfp
-    sub_temp_fastas_files_for_NetSurfp <- c()
+    #Assign the parallel process id for NetSurfp
     tabbed_fasta$parallel_process_NetSurfp_i <- 1
     if ((use_NetSurfp) & (number_of_parallel_processes_for_NetSurfp > 1)) {
-        # tabbed_fasta[, output_NetSurfp_aux := sprintf(">%s\n%s", protein, sequence)]
-        
         unique_protein_amount <- tabbed_fasta[, .N]
         
         division_aux <- unique_protein_amount %/% number_of_parallel_processes_for_NetSurfp
@@ -807,28 +772,6 @@ runPredictors <- function(input_fasta_file,
             protein_subset_min_for_parallel <- 1 + sum(protein_per_process_amount[0:i])
             protein_subset_max_for_parallel <- protein_subset_min_for_parallel + protein_per_process_amount[i + 1] - 1
             tabbed_fasta[protein_subset_min_for_parallel:protein_subset_max_for_parallel]$parallel_process_NetSurfp_i <- i
-            
-            # sub_fasta_output <- paste(tabbed_fasta[protein_subset_min_for_parallel:protein_subset_max_for_parallel]$output_NetSurfp_aux, collapse = "\n")
-            # sub_temp_fasta_file <- sprintf("%s/sub_temp_NetSurfp_%s.fasta", temp_data_folder, i)
-            # 
-            # write(sub_fasta_output, file = sub_temp_fasta_file)
-            # 
-            # sub_temp_fastas_files_for_NetSurfp <- c(sub_temp_fastas_files_for_NetSurfp, sub_temp_fasta_file)
-        }
-        
-        # tabbed_fasta <- tabbed_fasta[, -c("output_NetSurfp_aux")]
-    }
-    
-    #Create the folders for each Xstream output (can't change the name)
-    sub_Xstream_temp_folders <- c()
-    if (use_Xstream) {
-        for (i in 1:number_of_parallel_processes) {
-            sub_Xstream_temp_folder <- sprintf("%s/Xstream_temp_%s", temp_data_folder, i)
-            if (!dir.exists(sub_Xstream_temp_folder)) {
-                dir.create(sub_Xstream_temp_folder, recursive = T)
-            }
-            
-            sub_Xstream_temp_folders <- c(sub_Xstream_temp_folders, sub_Xstream_temp_folder)
         }
     }
     
@@ -839,290 +782,442 @@ runPredictors <- function(input_fasta_file,
     #### BepiPred ####
     ##################-
     if (use_BepiPred) {
-        writeLines("Running BepiPred...")
-        BepiPred_parsed_data <- runAndParse_BepiPred(input_fasta_files = sub_temp_fastas_files,
-                                                     number_of_parallel_processes = number_of_parallel_processes)    
+        BepiPred_temp_file <- sprintf("%s/temp_output_BepiPred.tsv", temp_data_folder)
+        if (file.exists(BepiPred_temp_file) == F) {
+            writeLines("Running BepiPred...")
+            
+            BepiPred_parsed_data <- runAndParse_BepiPred(input_fasta_files = sub_temp_fastas_files,
+                                                         number_of_parallel_processes = number_of_parallel_processes)    
+            
+            write.table(BepiPred_parsed_data, file = BepiPred_temp_file, col.names = T, row.names = F, sep = "\t", quote = T)
+        } else {
+            writeLines("Recovering BepiPred Data...")
+            
+            BepiPred_parsed_data <- fread(file = BepiPred_temp_file, header = T, sep = "\t", na.strings = NULL)
+        }
     }
     
     ##############################################-
     #### Isoelectric point & Molecular weight ####
     ##############################################-
     if (use_IsoelectricPoint | use_MolecularWeight) {
-        writeLines("Running EMBOSS...")
-        IP_MW_parsed_data <- runAndParse_IP_MW(input_fasta_files = sub_temp_fastas_files,
-                                               temp_data_folder = temp_data_folder,
-                                               number_of_parallel_processes = number_of_parallel_processes)
+        IP_MW_temp_file <- sprintf("%s/temp_output_IP_MW.tsv", temp_data_folder)
+        if (file.exists(IP_MW_temp_file) == F) {
+            writeLines("Running EMBOSS...")
+            
+            IP_MW_parsed_data <- runAndParse_IP_MW(input_fasta_files = sub_temp_fastas_files,
+                                                   temp_data_folder = temp_data_folder,
+                                                   number_of_parallel_processes = number_of_parallel_processes)
+            
+            write.table(IP_MW_parsed_data, file = IP_MW_temp_file, col.names = T, row.names = F, sep = "\t", quote = T)
+        } else {
+            writeLines("Recovering EMBOSS Data...")
+            IP_MW_parsed_data <- fread(file = IP_MW_temp_file, header = T, sep = "\t", na.strings = NULL)
+        }
     }
     
     ###################-
     #### Paircoil2 ####
     ###################-
     if (use_Paircoil2) {
-        writeLines("Running Paircoil2...")
-        Paircoil_parsed_data <- runAndParse_Paircoil2(input_fasta_files = sub_temp_fastas_files,
-                                                      temp_data_folder = temp_data_folder,
-                                                      aminoacid_fasta = aminoacid_fasta,
-                                                      tabbed_fasta = tabbed_fasta,
-                                                      number_of_parallel_processes = number_of_parallel_processes)    
+        Paircoil_temp_file <- sprintf("%s/temp_output_Paircoil.tsv", temp_data_folder)
+        if (file.exists(Paircoil_temp_file) == F) {
+            writeLines("Running Paircoil2...")
+            
+            Paircoil_parsed_data <- runAndParse_Paircoil2(input_fasta_files = sub_temp_fastas_files,
+                                                          temp_data_folder = temp_data_folder,
+                                                          aminoacid_fasta = aminoacid_fasta,
+                                                          tabbed_fasta = tabbed_fasta,
+                                                          number_of_parallel_processes = number_of_parallel_processes)
+            
+            write.table(Paircoil_parsed_data, file = Paircoil_temp_file, col.names = T, row.names = F, sep = "\t", quote = T)
+        } else {
+            writeLines("Recovering Paircoil2 Data...")
+            Paircoil_parsed_data <- fread(file = Paircoil_temp_file, header = T, sep = "\t", na.strings = NULL)
+        }
     }
     
     #################-
     #### PredGPI ####
     #################-
     if (use_PredGPI) {
-        writeLines("Running PredGPI...")
-        PredGPI_parsed_data <- runAndParse_PredGPI(temp_data_folder = temp_data_folder,
-                                                   tabbed_fasta = tabbed_fasta,
-                                                   PredGPI_min_length = 41,
-                                                   number_of_parallel_processes = number_of_parallel_processes)    
+        PredGPI_temp_file <- sprintf("%s/temp_output_PredGPI.tsv", temp_data_folder)
+        if (file.exists(PredGPI_temp_file) == F) {
+            writeLines("Running PredGPI...")
+            
+            PredGPI_parsed_data <- runAndParse_PredGPI(temp_data_folder = temp_data_folder,
+                                                       tabbed_fasta = tabbed_fasta,
+                                                       PredGPI_min_length = 41,
+                                                       number_of_parallel_processes = number_of_parallel_processes)  
+            
+            write.table(PredGPI_parsed_data, file = PredGPI_temp_file, col.names = T, row.names = F, sep = "\t", quote = T)
+        } else {
+            writeLines("Recovering PredGPI Data...")
+            PredGPI_parsed_data <- fread(file = PredGPI_temp_file, header = T, sep = "\t", na.strings = NULL)
+        }
     }
     
     #################-
     #### SignalP ####
     #################-
     if (use_SignalP) {
-        writeLines("Running SignalP...")
-        list_output <- runAndParse_SignalP(input_fasta_files = sub_temp_fastas_files,
-                                           SignalP_organism_group = SignalP_organism_group,
-                                           aminoacid_fasta = aminoacid_fasta,
-                                           number_of_parallel_processes = number_of_parallel_processes)
-        SignalP_protein_parsed_data <- list_output[["SignalP_protein_parsed_data"]]
-        SignalP_aminoacid_parsed_data <- list_output[["SignalP_aminoacid_parsed_data"]]
-        rm(list_output)
-        gc()    
+        SignalP_proteins_temp_file <- sprintf("%s/temp_output_SignalP_proteins.tsv", temp_data_folder)
+        SignalP_aminoacids_temp_file <- sprintf("%s/temp_output_SignalP_aminoacids.tsv", temp_data_folder)
+        if (file.exists(SignalP_proteins_temp_file) == F) {
+            writeLines("Running SignalP...")
+            
+            list_output <- runAndParse_SignalP(input_fasta_files = sub_temp_fastas_files,
+                                               SignalP_organism_group = SignalP_organism_group,
+                                               aminoacid_fasta = aminoacid_fasta,
+                                               number_of_parallel_processes = number_of_parallel_processes)
+            SignalP_protein_parsed_data <- list_output[["SignalP_protein_parsed_data"]]
+            SignalP_aminoacid_parsed_data <- list_output[["SignalP_aminoacid_parsed_data"]] 
+            
+            write.table(SignalP_protein_parsed_data, file = SignalP_proteins_temp_file, col.names = T, row.names = F, sep = "\t", quote = T)
+            write.table(SignalP_aminoacid_parsed_data, file = SignalP_aminoacids_temp_file, col.names = T, row.names = F, sep = "\t", quote = T)
+        } else {
+            writeLines("Recovering SignalP Data...")
+            
+            SignalP_protein_parsed_data <- fread(file = SignalP_proteins_temp_file, header = T, sep = "\t", na.strings = NULL)
+            SignalP_aminoacid_parsed_data <- fread(file = SignalP_aminoacids_temp_file, header = T, sep = "\t", na.strings = NULL)
+        }
     }
     
     ###############-
     #### TMHMM ####
     ###############-
     if (use_TMHMM) {
-        writeLines("Running TMHMM...")
-        list_output <- runAndParse_TMHMM(input_fasta_files = sub_temp_fastas_files,
-                                         aminoacid_fasta = aminoacid_fasta,
-                                         number_of_parallel_processes = number_of_parallel_processes)
-        TMHMM_protein_parsed_data <- list_output[["TMHMM_protein_parsed_data"]]
-        TMHMM_aminoacid_parsed_data <- list_output[["TMHMM_aminoacid_parsed_data"]]
-        rm(list_output)
-        gc()    
+        TMHMM_proteins_temp_file <- sprintf("%s/temp_output_TMHMM_proteins.tsv", temp_data_folder)
+        TMHMM_aminoacids_temp_file <- sprintf("%s/temp_output_TMHMM_aminoacids.tsv", temp_data_folder)
+        if (file.exists(TMHMM_proteins_temp_file) == F) {
+            writeLines("Running TMHMM...")
+            
+            list_output <- runAndParse_TMHMM(input_fasta_files = sub_temp_fastas_files,
+                                             aminoacid_fasta = aminoacid_fasta,
+                                             number_of_parallel_processes = number_of_parallel_processes)
+            TMHMM_protein_parsed_data <- list_output[["TMHMM_protein_parsed_data"]]
+            TMHMM_aminoacid_parsed_data <- list_output[["TMHMM_aminoacid_parsed_data"]]
+            
+            write.table(TMHMM_protein_parsed_data, file = TMHMM_proteins_temp_file, col.names = T, row.names = F, sep = "\t", quote = T)
+            write.table(TMHMM_aminoacid_parsed_data, file = TMHMM_aminoacids_temp_file, col.names = T, row.names = F, sep = "\t", quote = T)
+        } else {
+            writeLines("Recovering TMHMM Data...")
+            
+            TMHMM_protein_parsed_data <- fread(file = TMHMM_proteins_temp_file, header = T, sep = "\t", na.strings = NULL)
+            TMHMM_aminoacid_parsed_data <- fread(file = TMHMM_aminoacids_temp_file, header = T, sep = "\t", na.strings = NULL)
+        }
     }
     
     ##################################-
     #### **RUN ONCE PER PROTEIN** ####
     ##################################-
-    numCores <- detectCores() #set the cores
-    
-    registerDoParallel(numCores)  #use multicore, set to the number of our cores
-    
-    full_list_output <- foreach (i = 1:number_of_parallel_processes, .combine = c) %dopar% {
+    #Declare variable to save data between iterations (its a good idea for it to be a power of 2)
+    write_data_every_X_proteins <- 128
+
+    if (use_Iupred | use_NetMHCIIpan | use_NetOglyc | use_Xstream | use_NetSurfp) {
+        #Create the temp saving files
+        Iupred_temp_file <- sprintf("%s/temp_output_Iupred.tsv", temp_data_folder)
+        NetMHCIIpan_alleles_temp_file <- sprintf("%s/temp_output_NetMHCIIpan_alleles.tsv", temp_data_folder)
+        NetMHCIIpan_peptides_temp_file <- sprintf("%s/temp_output_NetMHCIIpan_peptides.tsv", temp_data_folder)
+        NetOglyc_temp_file <- sprintf("%s/temp_output_NetOglyc.tsv", temp_data_folder)
+        Xstream_temp_file <- sprintf("%s/temp_output_Xstream.tsv", temp_data_folder)
+        NetSurfp_temp_file <- sprintf("%s/temp_output_NetSurfp.tsv", temp_data_folder)
+        
+        #Create the base variables
         full_Iupred_parsed_data <- data.table()
-        full_NetMHCIIPan_parsed_allele_data <- data.table()
-        full_NetMHCIIPan_parsed_peptide_data <- data.table()
+        full_NetMHCIIpan_parsed_allele_data <- data.table()
+        full_NetMHCIIpan_parsed_peptide_data <- data.table()
         full_NetOglyc_parsed_data <- data.table()
         full_Xstream_parsed_data <- data.table()
+        full_NetSurfp_parsed_data <- data.table()
         
-        sub_tabbed_fasta <- tabbed_fasta[parallel_process_i == i]
-        sub_protein_amount <- sub_tabbed_fasta[, .N]
-        if (use_Iupred | use_NetMHCIIpan | use_NetOglyc | use_Xstream) {
-            for (j in 1:sub_protein_amount) {
-                #j <- 1
-                #fasta_for <- sub_tabbed_fasta[original_protein == "XP_001348321.1"]
-                fasta_for <- sub_tabbed_fasta[j]
+        already_parsed_proteins_Iupred <- c()
+        already_parsed_proteins_NetMHCIIpan <- c()
+        already_parsed_proteins_NetOglyc <- c()
+        already_parsed_proteins_Xstream <- c()
+        already_parsed_proteins_NetSurfp <- c()
+        
+        #If they exist, load temp data
+        if (use_Iupred & file.exists(Iupred_temp_file)) {
+            writeLines("Recovering Iupred Data...")
+            full_Iupred_parsed_data <- fread(file = Iupred_temp_file, header = T, sep = "\t", na.strings = NULL)
+            already_parsed_proteins_Iupred <- unique(full_Iupred_parsed_data$id)
+        }
+        if (use_NetMHCIIpan & file.exists(NetMHCIIpan_alleles_temp_file)) {
+            writeLines("Recovering NetMHCIIpan Data...")
+            full_NetMHCIIpan_parsed_allele_data <- fread(file = NetMHCIIpan_alleles_temp_file, header = T, sep = "\t", na.strings = NULL)
+            full_NetMHCIIpan_parsed_peptide_data <- fread(file = NetMHCIIpan_peptides_temp_file, header = T, sep = "\t", na.strings = NULL)
+            already_parsed_proteins_NetMHCIIpan <- unique(full_NetMHCIIpan_parsed_peptide_data$id)
+        }
+        if (use_NetOglyc & file.exists(NetOglyc_temp_file)) {
+            writeLines("Recovering NetOglyc Data...")
+            full_NetOglyc_parsed_data <- fread(file = NetOglyc_temp_file, header = T, sep = "\t", na.strings = NULL)
+            already_parsed_proteins_NetOglyc <- unique(full_NetOglyc_parsed_data$id)
+        }
+        if (use_Xstream & file.exists(Xstream_temp_file)) {
+            writeLines("Recovering Xstream Data...")
+            full_Xstream_parsed_data <- fread(file = Xstream_temp_file, header = T, sep = "\t", na.strings = NULL)
+            already_parsed_proteins_Xstream <- unique(full_Xstream_parsed_data$id)
+        }
+        if (use_NetSurfp & file.exists(NetSurfp_temp_file)) {
+            writeLines("Recovering NetSurfp Data...")
+            full_NetSurfp_parsed_data <- fread(file = NetSurfp_temp_file, header = T, sep = "\t", na.strings = NULL)
+            already_parsed_proteins_NetSurfp <- unique(full_NetSurfp_parsed_data$id)
+        }
+        
+        #Calculate the proteins that were already parsed everywhere
+        already_parsed_proteins_all <- already_parsed_proteins_Iupred
+        already_parsed_proteins_all <- intersect(already_parsed_proteins_all, already_parsed_proteins_NetMHCIIpan)
+        already_parsed_proteins_all <- intersect(already_parsed_proteins_all, already_parsed_proteins_NetOglyc)
+        already_parsed_proteins_all <- intersect(already_parsed_proteins_all, already_parsed_proteins_Xstream)
+        already_parsed_proteins_all <- intersect(already_parsed_proteins_all, already_parsed_proteins_NetSurfp)
+        
+        #Filter the proteins that were already parsed for all out of the tabbed_fasta
+        if (length(already_parsed_proteins_all) > 0) {
+            filtered_tabbed_fasta <- tabbed_fasta[!(protein %in% already_parsed_proteins_all)]
+        } else {
+            filtered_tabbed_fasta <- tabbed_fasta
+        }
+        
+        if (filtered_tabbed_fasta[, .N] > 0) {
+            #Loop for each group of proteins to be saved
+            loop_amount <- ceiling(filtered_tabbed_fasta[, .N] / write_data_every_X_proteins)
+            for (i in 1:loop_amount) {
+                # i <- 2
+                min_prot_index <- 1 + write_data_every_X_proteins * (i - 1)
+                max_prot_index <- min_prot_index + write_data_every_X_proteins - 1
+                if (max_prot_index > filtered_tabbed_fasta[, .N]) {
+                    max_prot_index <- filtered_tabbed_fasta[, .N]
+                }
                 
-                writeLines(sprintf("Processing data for %s (%s/%s of core %s/%s)...", fasta_for$original_protein, j, sub_protein_amount, i, number_of_parallel_processes))
+                #Extract the sub_fasta
+                sub_tabbed_fasta <- filtered_tabbed_fasta[min_prot_index:max_prot_index]
                 
-                mini_fasta <- sprintf(">%s\n%s\n", fasta_for$protein, fasta_for$sequence)
-                mini_fasta_file <- sprintf("%s/temp_mini_%s.fasta", temp_data_folder, i)
-                write(mini_fasta, file = mini_fasta_file)
+                #Create the mini fastas
+                for (protein_index_for in 1:sub_tabbed_fasta[, .N]) {
+                    # prot_index_for <- 2
+                    fasta_for <- sub_tabbed_fasta[protein_index_for]
+                    
+                    mini_fasta <- sprintf(">%s\n%s\n", fasta_for$protein, fasta_for$sequence)
+                    mini_fasta_file <- sprintf("%s/temp_mini_%s.fasta", temp_data_folder, protein_index_for)
+                    write(mini_fasta, file = mini_fasta_file)
+                }
                 
                 ################-
                 #### Iupred ####
                 ################-
                 if (use_Iupred) {
-                    writeLines(sprintf("Running Iupred for %s...", fasta_for$original_protein))
+                    writeLines(sprintf("Running Iupred (%s/%s)...", i, loop_amount))
                     
-                    Iupred_parsed_data <- runAndParse_Iupred(input_singleProteinFasta_file = mini_fasta_file,
-                                                             protein_par = fasta_for$protein)
+                    #Initialize the parallel processing
+                    numCores <- detectCores() #set the cores
+                    registerDoParallel(numCores)  #use multicore, set to the number of our cores
                     
+                    loop_Iupred_parsed_data <- foreach (protein_index_for = 1:sub_tabbed_fasta[, .N], .combine = rbind) %dopar% {
+                        dt_protein_for <- sub_tabbed_fasta[protein_index_for]
+                        
+                        if (!(dt_protein_for$protein %in% already_parsed_proteins_Iupred)) {
+                            mini_fasta_file_for <- sprintf("%s/temp_mini_%s.fasta", temp_data_folder, protein_index_for)
+                            
+                            Iupred_parsed_data <- runAndParse_Iupred(input_singleProteinFasta_file = mini_fasta_file_for,
+                                                                     protein_par = dt_protein_for$protein)
+                            
+                            Iupred_parsed_data
+                        }
+                    }
+                    
+                    #End the parallel processing
+                    stopImplicitCluster()
+                    
+                    #Save or append the data
                     if (full_Iupred_parsed_data[, .N] == 0) {
-                        full_Iupred_parsed_data <- Iupred_parsed_data
+                        full_Iupred_parsed_data <- loop_Iupred_parsed_data
+                        write.table(loop_Iupred_parsed_data, file = Iupred_temp_file, col.names = T, row.names = F, sep = "\t", quote = T)
                     } else {
-                        full_Iupred_parsed_data <- rbindlist(list(full_Iupred_parsed_data, Iupred_parsed_data))
-                    }    
+                        full_Iupred_parsed_data <- rbindlist(list(full_Iupred_parsed_data, loop_Iupred_parsed_data))
+                        write.table(loop_Iupred_parsed_data, file = Iupred_temp_file, col.names = F, row.names = F, sep = "\t", quote = T, append = T)
+                    }   
                 }
                 
                 #####################-
                 #### NetMHCIIpan ####
                 #####################-
                 if (use_NetMHCIIpan) {
-                    writeLines(sprintf("Running NetMHCIIpan for %s...", fasta_for$original_protein))
+                    writeLines(sprintf("Running NetMHCIIpan (%s/%s)...", i, loop_amount))
                     
-                    list_output <- runAndParse_NetMHCIIPan(input_singleProteinFasta_file = mini_fasta_file,
-                                                           NetMHCIIPan_alleles = NetMHCIIPan_alleles,
-                                                           NetMHCIIpan_binding_peptide_length = NetMHCIIpan_binding_peptide_length)
-                    NetMHCIIpan_parsed_allele_data <- list_output[["NetMHCIIpan_parsed_allele_data"]]
-                    NetMHCIIpan_parsed_peptide_data <- list_output[["NetMHCIIpan_parsed_peptide_data"]]
-                    rm(list_output)
+                    #Initialize the parallel processing
+                    numCores <- detectCores() #set the cores
+                    registerDoParallel(numCores)  #use multicore, set to the number of our cores
+                    
+                    loop_NetMHCIIpan_list_output <- foreach (protein_index_for = 1:sub_tabbed_fasta[, .N], .combine = c) %dopar% {
+                        # protein_index_for <- 1
+                        dt_protein_for <- sub_tabbed_fasta[protein_index_for]
+                        
+                        if (!(dt_protein_for$protein %in% already_parsed_proteins_NetMHCIIpan)) {
+                            mini_fasta_file_for <- sprintf("%s/temp_mini_%s.fasta", temp_data_folder, protein_index_for)
+                            
+                            list_output <- runAndParse_NetMHCIIpan(input_singleProteinFasta_file = mini_fasta_file_for,
+                                                                   NetMHCIIpan_alleles = NetMHCIIpan_alleles,
+                                                                   NetMHCIIpan_binding_peptide_length = NetMHCIIpan_binding_peptide_length,
+                                                                   list_output_suffix = sprintf("_%s", protein_index_for))
+                            
+                            list_output
+                        }
+                    }
+                    
+                    #End the parallel processing
+                    stopImplicitCluster()
+                    
+                    #Combine the data in data.tables
+                    for (protein_index_for in 1:sub_tabbed_fasta[, .N]) {
+                        # protein_index_for <- 1
+                        NetMHCIIpan_parsed_allele_data_aux <- loop_NetMHCIIpan_list_output[[sprintf("NetMHCIIpan_parsed_allele_data_%s", protein_index_for)]]
+                        NetMHCIIpan_parsed_peptide_data_aux <- loop_NetMHCIIpan_list_output[[sprintf("NetMHCIIpan_parsed_peptide_data_%s", protein_index_for)]]
+                        
+                        if (protein_index_for == 1) {
+                            loop_NetMHCIIpan_parsed_allele_data <- NetMHCIIpan_parsed_allele_data_aux
+                            loop_NetMHCIIpan_parsed_peptide_data <- NetMHCIIpan_parsed_peptide_data_aux
+                        } else {
+                            loop_NetMHCIIpan_parsed_allele_data <- rbindlist(list(loop_NetMHCIIpan_parsed_allele_data, NetMHCIIpan_parsed_allele_data_aux))
+                            loop_NetMHCIIpan_parsed_peptide_data <- rbindlist(list(loop_NetMHCIIpan_parsed_peptide_data, NetMHCIIpan_parsed_peptide_data_aux))
+                        }
+                    }
+                    rm(loop_NetMHCIIpan_list_output)
                     gc()
                     
-                    if (full_NetMHCIIPan_parsed_allele_data[, .N] == 0) {
-                        full_NetMHCIIPan_parsed_allele_data <- NetMHCIIpan_parsed_allele_data
+                    #Save or append the data
+                    if (full_NetMHCIIpan_parsed_allele_data[, .N] == 0) {
+                        full_NetMHCIIpan_parsed_allele_data <- loop_NetMHCIIpan_parsed_allele_data
+                        full_NetMHCIIpan_parsed_peptide_data <- loop_NetMHCIIpan_parsed_peptide_data
+                        write.table(loop_NetMHCIIpan_parsed_allele_data, file = NetMHCIIpan_alleles_temp_file, col.names = T, row.names = F, sep = "\t", quote = T)
+                        write.table(loop_NetMHCIIpan_parsed_peptide_data, file = NetMHCIIpan_peptides_temp_file, col.names = T, row.names = F, sep = "\t", quote = T)
                     } else {
-                        full_NetMHCIIPan_parsed_allele_data <- rbindlist(list(full_NetMHCIIPan_parsed_allele_data, NetMHCIIpan_parsed_allele_data))
-                    }
-                    if (full_NetMHCIIPan_parsed_peptide_data[, .N] == 0) {
-                        full_NetMHCIIPan_parsed_peptide_data <- NetMHCIIpan_parsed_peptide_data
-                    } else {
-                        full_NetMHCIIPan_parsed_peptide_data <- rbindlist(list(full_NetMHCIIPan_parsed_peptide_data, NetMHCIIpan_parsed_peptide_data))
-                    }
+                        full_NetMHCIIpan_parsed_allele_data <- rbindlist(list(full_NetMHCIIpan_parsed_allele_data, loop_NetMHCIIpan_parsed_allele_data))
+                        full_NetMHCIIpan_parsed_peptide_data <- rbindlist(list(full_NetMHCIIpan_parsed_peptide_data, loop_NetMHCIIpan_parsed_peptide_data))
+                        write.table(loop_NetMHCIIpan_parsed_allele_data, file = NetMHCIIpan_alleles_temp_file, col.names = F, row.names = F, sep = "\t", quote = T, append = T)
+                        write.table(loop_NetMHCIIpan_parsed_peptide_data, file = NetMHCIIpan_peptides_temp_file, col.names = F, row.names = F, sep = "\t", quote = T, append = T)
+                    }   
                 }
                 
                 ##################-
                 #### NetOglyc ####
                 ##################-
                 if (use_NetOglyc) {
-                    writeLines(sprintf("Running NetOglyc for %s...", fasta_for$original_protein))
+                    writeLines(sprintf("Running NetOglyc (%s/%s)...", i, loop_amount))
                     
-                    NetOglyc_parsed_data <- runAndParse_NetOglyc(input_singleProteinFasta_file = mini_fasta_file,
-                                                                 protein_par = fasta_for$protein,
-                                                                 aminoacid_fasta = aminoacid_fasta)
+                    #Initialize the parallel processing
+                    numCores <- detectCores() #set the cores
+                    registerDoParallel(numCores)  #use multicore, set to the number of our cores
                     
+                    loop_NetOglyc_parsed_data <- foreach (protein_index_for = 1:sub_tabbed_fasta[, .N], .combine = rbind) %dopar% {
+                        dt_protein_for <- sub_tabbed_fasta[protein_index_for]
+                        
+                        if (!(dt_protein_for$protein %in% already_parsed_proteins_NetOglyc)) {
+                            mini_fasta_file_for <- sprintf("%s/temp_mini_%s.fasta", temp_data_folder, protein_index_for)
+                            
+                            NetOglyc_parsed_data <- runAndParse_NetOglyc(input_singleProteinFasta_file = mini_fasta_file_for,
+                                                                         protein_par = dt_protein_for$protein,
+                                                                         aminoacid_fasta = aminoacid_fasta)
+                            
+                            NetOglyc_parsed_data
+                        }
+                    }
+                    
+                    #End the parallel processing
+                    stopImplicitCluster()
+                    
+                    #Save or append the data
                     if (full_NetOglyc_parsed_data[, .N] == 0) {
-                        full_NetOglyc_parsed_data <- NetOglyc_parsed_data
+                        full_NetOglyc_parsed_data <- loop_NetOglyc_parsed_data
+                        write.table(loop_NetOglyc_parsed_data, file = NetOglyc_temp_file, col.names = T, row.names = F, sep = "\t", quote = T)
                     } else {
-                        full_NetOglyc_parsed_data <- rbindlist(list(full_NetOglyc_parsed_data, NetOglyc_parsed_data))
-                    }    
+                        full_NetOglyc_parsed_data <- rbindlist(list(full_NetOglyc_parsed_data, loop_NetOglyc_parsed_data))
+                        write.table(loop_NetOglyc_parsed_data, file = NetOglyc_temp_file, col.names = F, row.names = F, sep = "\t", quote = T, append = T)
+                    }   
                 }
                 
                 #################-
-                #### XStream ####
+                #### Xstream ####
                 #################-
                 if (use_Xstream) {
-                    writeLines(sprintf("Running XStream for %s...", fasta_for$original_protein))
+                    writeLines(sprintf("Running Xstream (%s/%s)...", i, loop_amount))
                     
-                    Xstream_parsed_data <- runAndParse_Xstream(input_singleProteinFasta_file = mini_fasta_file,
-                                                               protein = fasta_for$protein,
-                                                               temp_data_folder = sub_Xstream_temp_folders[i],
-                                                               Xstream_path = Xstream_path)
+                    #Initialize the parallel processing
+                    numCores <- detectCores() #set the cores
+                    registerDoParallel(numCores)  #use multicore, set to the number of our cores
                     
-                    if (full_Xstream_parsed_data[, .N] == 0) {
-                        full_Xstream_parsed_data <- Xstream_parsed_data
-                    } else {
-                        full_Xstream_parsed_data <- rbindlist(list(full_Xstream_parsed_data, Xstream_parsed_data))
+                    loop_Xstream_parsed_data <- foreach (protein_index_for = 1:sub_tabbed_fasta[, .N], .combine = rbind) %dopar% {
+                        # protein_index_for <- 2
+                        dt_protein_for <- sub_tabbed_fasta[protein_index_for]
+                        
+                        if (!(dt_protein_for$protein %in% already_parsed_proteins_Xstream)) {
+                            mini_fasta_file_for <- sprintf("%s/temp_mini_%s.fasta", temp_data_folder, protein_index_for)
+                            
+                            #Create Xstream folder
+                            Xstream_temp_folder <- sprintf("%s/Xstream_temp_%s", temp_data_folder, protein_index_for)
+                            if (!dir.exists(Xstream_temp_folder)) {
+                                dir.create(Xstream_temp_folder)
+                            }
+                            
+                            Xstream_parsed_data <- runAndParse_Xstream(input_singleProteinFasta_file = mini_fasta_file_for,
+                                                                       protein = dt_protein_for$protein,
+                                                                       Xstream_temp_folder = Xstream_temp_folder,
+                                                                       Xstream_path = Xstream_path)
+                            
+                            #Delete Xstream folder
+                            unlink(Xstream_temp_folder, recursive = T)
+                            
+                            Xstream_parsed_data
+                        }
                     }
+                    
+                    #End the parallel processing
+                    stopImplicitCluster()
+                    
+                    #Save or append the data
+                    if (full_Xstream_parsed_data[, .N] == 0) {
+                        full_Xstream_parsed_data <- loop_Xstream_parsed_data
+                        write.table(loop_Xstream_parsed_data, file = Xstream_temp_file, col.names = T, row.names = F, sep = "\t", quote = T)
+                    } else {
+                        full_Xstream_parsed_data <- rbindlist(list(full_Xstream_parsed_data, loop_Xstream_parsed_data))
+                        write.table(loop_Xstream_parsed_data, file = Xstream_temp_file, col.names = F, row.names = F, sep = "\t", quote = T, append = T)
+                    }   
                 }
-            }
-        }
-        
-        #Create the list output
-        list_output <- list()
-        list_output[[sprintf("full_Iupred_parsed_data_%s", i)]] <- full_Iupred_parsed_data
-        list_output[[sprintf("full_NetMHCIIPan_parsed_allele_data_%s", i)]] <- full_NetMHCIIPan_parsed_allele_data
-        list_output[[sprintf("full_NetMHCIIPan_parsed_peptide_data_%s", i)]] <- full_NetMHCIIPan_parsed_peptide_data
-        list_output[[sprintf("full_NetOglyc_parsed_data_%s", i)]] <- full_NetOglyc_parsed_data
-        list_output[[sprintf("full_Xstream_parsed_data_%s", i)]] <- full_Xstream_parsed_data
-        
-        list_output
-    }
-    
-    #End the parallel processing
-    stopImplicitCluster()
-    
-    #Paste the outputs together
-    for (i in 1:number_of_parallel_processes) {
-        #i <- 2
-        if (i == 1) {
-            full_Iupred_parsed_data <- full_list_output[[sprintf("full_Iupred_parsed_data_%s", i)]]
-            full_NetMHCIIPan_parsed_allele_data <- full_list_output[[sprintf("full_NetMHCIIPan_parsed_allele_data_%s", i)]]
-            full_NetMHCIIPan_parsed_peptide_data <- full_list_output[[sprintf("full_NetMHCIIPan_parsed_peptide_data_%s", i)]]
-            full_NetOglyc_parsed_data <- full_list_output[[sprintf("full_NetOglyc_parsed_data_%s", i)]]
-            full_Xstream_parsed_data <- full_list_output[[sprintf("full_Xstream_parsed_data_%s", i)]]
-        } else {
-            full_Iupred_parsed_data <- rbindlist(list(full_Iupred_parsed_data,
-                                                      full_list_output[[sprintf("full_Iupred_parsed_data_%s", i)]]))
-            full_NetMHCIIPan_parsed_allele_data <- rbindlist(list(full_NetMHCIIPan_parsed_allele_data,
-                                                                  full_list_output[[sprintf("full_NetMHCIIPan_parsed_allele_data_%s", i)]]))
-            full_NetMHCIIPan_parsed_peptide_data <- rbindlist(list(full_NetMHCIIPan_parsed_peptide_data,
-                                                                   full_list_output[[sprintf("full_NetMHCIIPan_parsed_peptide_data_%s", i)]]))
-            full_NetOglyc_parsed_data <- rbindlist(list(full_NetOglyc_parsed_data,
-                                                        full_list_output[[sprintf("full_NetOglyc_parsed_data_%s", i)]]))
-            full_Xstream_parsed_data <- rbindlist(list(full_Xstream_parsed_data,
-                                                       full_list_output[[sprintf("full_Xstream_parsed_data_%s", i)]]))
-        }
-    }
-    rm(full_list_output)
-    gc()
-    
-    ###########################################-
-    #### **RUN NETSURFP ONCE PER PROTEIN** ####
-    ###########################################-
-    ### NetSurfp can theoretically run using large FASTAs, however it gave a lot of errors (core dumps) which
-    ### made it have to start over, and if it had many proteins it had to do that with all of them. This way
-    ### even if it has to do something all over again it will be a lot shorter
-    ### The bad news about this is that I'm creating 1 file per protein twice
-    NetSurfp_write_data_every_X_proteins <- 100
-    
-    if (use_NetSurfp) {
-        numCores <- detectCores() #set the cores
-        
-        registerDoParallel(numCores)  #use multicore, set to the number of our cores
-        
-        #I tried using combine as I did for the other predictors, but NetSurfp uses too much memory and that
-        #resulted in errors, so now I'll write the data into files as it is being processed
-        foreach (i = 1:number_of_parallel_processes_for_NetSurfp) %dopar% {
-            # i <- 1
-            full_NetSurfp_parsed_data <- data.table()
-            
-            sub_NetSurfp_parsed_data_file <- sprintf("%s/NetSurfp_sub_parsed_data_temp_%s.tsv", temp_data_folder, i)
-            
-            sub_tabbed_fasta <- tabbed_fasta[parallel_process_NetSurfp_i == i]
-            sub_protein_amount <- sub_tabbed_fasta[, .N]
-            for (j in 1:sub_protein_amount) {
-                # j <- 1
-                fasta_for <- sub_tabbed_fasta[j]
-                
-                writeLines(sprintf("Running NetSurfp for %s (%s/%s of core %s/%s)...", fasta_for$original_protein, j, sub_protein_amount, i, number_of_parallel_processes_for_NetSurfp))
-                
-                mini_fasta <- sprintf(">%s\n%s\n", fasta_for$protein, fasta_for$sequence)
-                mini_fasta_file <- sprintf("%s/temp_mini_%s.fasta", temp_data_folder, i)
-                write(mini_fasta, file = mini_fasta_file)
                 
                 ##################-
                 #### NetSurfp ####
                 ##################-
-                NetSurfp_parsed_data <- runAndParse_NetSurfp(input_singleProteinFasta_file = mini_fasta_file)
-                
-                if (j == 1) {
-                    #The first time just create the file and the empty structure for the data
-                    sub_full_NetSurfp_parsed_data <- NetSurfp_parsed_data
-                    write.table(sub_full_NetSurfp_parsed_data,file = sub_NetSurfp_parsed_data_file,
-                                col.names = T, row.names = F, sep = "\t", quote = T)
-                    sub_full_NetSurfp_parsed_data <- NetSurfp_parsed_data[0,]
-                } else if ((j == sub_protein_amount) | ((j %% NetSurfp_write_data_every_X_proteins) == 0)) {
-                    #If it's the last time, or time to write the data, then write it and empty it
-                    sub_full_NetSurfp_parsed_data <- rbindlist(list(sub_full_NetSurfp_parsed_data, NetSurfp_parsed_data))
-                    write.table(sub_full_NetSurfp_parsed_data, file = sub_NetSurfp_parsed_data_file,
-                                col.names = F, row.names = F, sep = "\t", quote = T, append = T)
-                    sub_full_NetSurfp_parsed_data <- NetSurfp_parsed_data[0,]
-                } else {
-                    #Otherwise, just save the data in the data table to be saved later on
-                    sub_full_NetSurfp_parsed_data <- rbindlist(list(sub_full_NetSurfp_parsed_data, NetSurfp_parsed_data))
+                if (use_NetSurfp) {
+                    writeLines(sprintf("Running NetSurfp (%s/%s)...", i, loop_amount))
+                    
+                    #Initialize the parallel processing
+                    numCores <- detectCores() #set the cores
+                    registerDoParallel(numCores)  #use multicore, set to the number of our cores
+                    
+                    loop_NetSurfp_parsed_data <- foreach (protein_index_for = 1:sub_tabbed_fasta[, .N], .combine = rbind) %dopar% {
+                        dt_protein_for <- sub_tabbed_fasta[protein_index_for]
+                        
+                        if (!(dt_protein_for$protein %in% already_parsed_proteins_NetSurfp)) {
+                            mini_fasta_file_for <- sprintf("%s/temp_mini_%s.fasta", temp_data_folder, protein_index_for)
+                            
+                            NetSurfp_parsed_data <- runAndParse_NetSurfp(input_singleProteinFasta_file = mini_fasta_file_for)
+                            
+                            NetSurfp_parsed_data
+                        }
+                    }
+                    
+                    #End the parallel processing
+                    stopImplicitCluster()
+                    
+                    #Save or append the data
+                    if (full_NetSurfp_parsed_data[, .N] == 0) {
+                        full_NetSurfp_parsed_data <- loop_NetSurfp_parsed_data
+                        write.table(loop_NetSurfp_parsed_data, file = NetSurfp_temp_file, col.names = T, row.names = F, sep = "\t", quote = T)
+                    } else {
+                        full_NetSurfp_parsed_data <- rbindlist(list(full_NetSurfp_parsed_data, loop_NetSurfp_parsed_data))
+                        write.table(loop_NetSurfp_parsed_data, file = NetSurfp_temp_file, col.names = F, row.names = F, sep = "\t", quote = T, append = T)
+                    }   
                 }
-            }
-        }
-        
-        #End the parallel processing
-        stopImplicitCluster()
-        
-        #Paste the outputs together
-        for (i in 1:number_of_parallel_processes_for_NetSurfp) {
-            sub_NetSurfp_parsed_data_file <- sprintf("%s/NetSurfp_sub_parsed_data_temp_%s.tsv", temp_data_folder, i)
-            sub_NetSurfp_parsed_data <- fread(sub_NetSurfp_parsed_data_file, header = T, sep = "\t", na.strings = NULL)
-            
-            if (i == 1) {
-                full_NetSurfp_parsed_data <- sub_NetSurfp_parsed_data
-            } else {
-                full_NetSurfp_parsed_data <- rbindlist(list(full_NetSurfp_parsed_data,
-                                                            sub_NetSurfp_parsed_data))
             }
         }
     }
@@ -1203,11 +1298,12 @@ runPredictors <- function(input_fasta_file,
     #####################-
     #### Per peptide ####
     #####################-
-    output_per_peptide <- full_NetMHCIIPan_parsed_peptide_data
+    output_per_peptide <- full_NetMHCIIpan_parsed_peptide_data
     
     ####################-
     #### Per repeat ####
     ####################-
+    full_Xstream_parsed_data <- full_Xstream_parsed_data[(start != 0) | (end != 0)] #remove non repeats
     output_per_repeat <- full_Xstream_parsed_data
     
     #####################-

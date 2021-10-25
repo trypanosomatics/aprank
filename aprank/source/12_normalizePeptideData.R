@@ -495,11 +495,10 @@ normalizePeptideData <- function(output_per_aminoacid, output_per_protein, outpu
     
     #Sort data
     normalized_output_per_peptide <- normalized_output_per_peptide[order(id, start)]
-	#Reorder manually due to problems with setcolorder
-    new_col_order <- c("id", "start", "end", "peptide")
-    new_col_order <- c(new_col_order,
-                       setdiff(colnames(normalized_output_per_peptide), new_col_order))
-    setcolorder(normalized_output_per_peptide, new_col_order) 
+    cols_aux <- colnames(normalized_output_per_peptide)
+    starting_cols_aux <- c("id", "start", "end", "peptide")
+    cols_aux <- c(starting_cols_aux, setdiff(cols_aux, starting_cols_aux))
+    setcolorder(normalized_output_per_peptide, cols_aux) #doing this by hand to support older data.table versions
     # setcolorder(normalized_output_per_peptide, c("id", "start", "end", "peptide"))
     
     if (output_method %in% c("write", "both")) {
