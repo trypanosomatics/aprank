@@ -66,7 +66,7 @@ The meaning of each parameter can be seen in the **USAGE** file. It's recomended
 
 ## RESUMING A HALTED RUN
 
-If for some reason the run was halted, you can resume it by using the **-res** command in the perl console call or by modifying the **temp_subfolder_for_resume** parameter in the **Perl Pipeline Config.txt** file. For this to work you have to pass the program the **full path** to the temp folder, which by default is found inside the ***/tmp*** folder and has a name such as *FASTAname_YYYYMMDD-hhmmss*.
+If for some reason the run was halted, you can resume it by using the **-res** command in the perl console call or by modifying the **temp_subfolder_for_resume** parameter in the **Perl Pipeline Config.txt** file. For this to work you have to pass the program the **full path** to the temp folder of this specific run, which by default is found inside the ***/tmp*** folder and has a name such as *FASTAname_YYYYMMDD-hhmmss*.
 
 ## READING THE OUTPUTS
 
