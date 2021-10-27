@@ -19,7 +19,7 @@ Inside most folders there is a file called peptide_antigenic_tag.tsv. Some folde
 
 These are peptide_antigenic_tag.tsv columns:
 
-- **protein** : id of the protein
-- **start** : the position of the first amino acid of the peptide inside the protein (the first peptide has a start of 1)
-- **peptide** : the sequence of the peptide
-- **is_antigenic** : if we had bibliography indicating that the peptide is antigenic (0 or 1, here is all 1 due to the filtering)
+- **protein**: id of the protein
+- **start**: the position of the first amino acid of the peptide inside the protein (the first peptide has a start of 1)
+- **peptide**: the sequence of the peptide
+- **is_antigenic**: if we had bibliography indicating that the peptide is antigenic (0 or 1, here is all 1 due to the filtering)
