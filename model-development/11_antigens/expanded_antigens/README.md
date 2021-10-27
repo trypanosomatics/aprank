@@ -15,7 +15,7 @@ Inside each folder there is a file called *protein_antigenic_tag.tsv*. These are
 ### **Peptides:**
 Using a method we called "kmer expansion", we expanded the antigenicity from peptides found in bibliography to others in that same protein. This method works by marking as antigenic any peptide that shared a kmer of at least 8 amino acids with a curated antigenic sequence for that same protein.
 
-Inside most folder there is a file called peptide_antigenic_tag.tsv. Some folders don't have this file because we didn't have antigenicity information at peptide level for that species. Due to size constraints, we only put the antigenic peptides in these files. All other 15mers were considered to be negative when training the models.
+Inside most folders there is a file called peptide_antigenic_tag.tsv. Some folders don't have this file because we didn't have antigenicity information at peptide level for that species. Due to size constraints, we only put the antigenic peptides in these files. All other 15mers were considered to be negative when training the models.
 
 These are peptide_antigenic_tag.tsv columns:
 
