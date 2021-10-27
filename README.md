@@ -18,4 +18,6 @@ If you want to train APRANK with new species, or if you want to recreate our mod
 
 FASTAs from the organisms used to train APRANK: [***aprank/model-development/01_inputs/***](https://github.com/trypanosomatics/aprank/tree/main/model-development/01_inputs)
 
-Parsed antigens from bibligraphy for the organisms used to train APRANK: [***aprank/model-development/11_antigens/***](https://github.com/trypanosomatics/aprank/tree/main/model-development/11_antigens)
+Antigens from bibligraphy for the organisms used to train APRANK: [***aprank/model-development/11_antigens/***](https://github.com/trypanosomatics/aprank/tree/main/model-development/11_antigens)
+
+The same antigens after expanding antigenicity via BLAST and kmer expansion: [***aprank/model-development/11_antigens/expanded_antigens***](https://github.com/trypanosomatics/aprank/tree/main/model-development/11_antigens/expanded_antigens)
