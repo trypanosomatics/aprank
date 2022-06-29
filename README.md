@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4726194.svg)](https://doi.org/10.5281/zenodo.4726194)
+
 # APRANK
 
 **APRANK** is an Antigenic Protein and Peptide Ranker. 
