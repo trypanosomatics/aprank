@@ -11,7 +11,7 @@ APRANK v1.0 by Alejandro Ricci
 
 Based on Pepranker v4.0 by Mauricio Brunner, Diego Ramoa, Santiago Carmona and Fernán Agüero
 
-## DEPENDENCES
+## DEPENDENCIES
 
 Needs Perl (Config::General, Bio::SeqIO::fasta, Parallel::ForkManager), R (data.table, pROC, ggplot2), BepiPred 1.0, Iupred 1.0, netMHCIIpan 2.0, NetOGlyc 3.1d, NetSurfp 1.0, Paircoil2, PredGPI 1.4.3, SignalP 4.0, TMHMM 2.0c and Xstream 1.71
 
